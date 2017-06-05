@@ -9,7 +9,7 @@ The code is tested on Keras 2.0.0 using Tensorflow backend, and Python 2.7
 ########################################
 from keras.models import Model
 from keras.models import Sequential
-from keras.layers import Dense, Embedding, LSTM, GRU, recurrent, Convolution1D, GlobalMaxPooling1D
+from keras.layers import Dense, Embedding, LSTM, GRU, Conv1D, Conv2D, GlobalMaxPooling1D
 from keras.layers import Dropout, Input, Bidirectional, Merge, RepeatVector, Activation, TimeDistributed, Flatten, RepeatVector, Permute, Lambda
 from keras.layers.merge import concatenate, add, dot, multiply
 from keras.optimizers import RMSprop, Adam, SGD, Adagrad, Adadelta, Adamax, Nadam
@@ -42,13 +42,13 @@ def cnn_rnn(nb_words=10000, EMBEDDING_DIM=200, \
     sequence_2_input = Input(shape=(MAX_SEQUENCE_LENGTH,), dtype='int32')
     embedded_sequences_2 = embedding_layer(sequence_2_input)
 
-    cnn_1 = Convolution1D(nb_filter=64,
+    cnn_1 = Conv1D(nb_filter=64,
                              filter_length=4,
                              border_mode='valid',
                              activation='relu',
                              subsample_length=1)(embedded_sequences_1)
     cnn_1 = Dropout(0.2)(cnn_1)
-    cnn_1 = Convolution1D(nb_filter=64,
+    cnn_1 = Conv1D(nb_filter=64,
                              filter_length=4,
                              border_mode='valid',
                              activation='relu',
@@ -59,13 +59,13 @@ def cnn_rnn(nb_words=10000, EMBEDDING_DIM=200, \
     cnn_1 = Dropout(0.2)(cnn_1)
     cnn_1 = BatchNormalization()(cnn_1)
 
-    cnn_2 = Convolution1D(nb_filter=64,
+    cnn_2 = Conv1D(nb_filter=64,
                              filter_length=4,
                              border_mode='valid',
                              activation='relu',
                              subsample_length=1)(embedded_sequences_2)
     cnn_2 = Dropout(0.2)(cnn_2)
-    cnn_2 = Convolution1D(nb_filter=64,
+    cnn_2 = Conv1D(nb_filter=64,
                              filter_length=4,
                              border_mode='valid',
                              activation='relu',
