@@ -29,7 +29,7 @@ from keras.models import Model
 from keras.callbacks import EarlyStopping, ModelCheckpoint
 
 from config import BASE_DIR, EMBEDDING_FILE, TRAIN_DATA_FILE, TEST_DATA_FILE, MAX_SEQUENCE_LENGTH, MAX_NB_WORDS, EMBEDDING_DIM, VALIDATION_SPLIT, STAMP
-from config import num_lstm, num_dense, rate_drop_lstm, rate_drop_dense, act, re_weight
+from config import num_rnn, num_dense, rate_drop_rnn, rate_drop_dense, act, re_weight
 from config import word2vec
 from config import text_to_wordlist
 from model import *
@@ -52,26 +52,27 @@ if __name__ == '__main__':
             # break
     print('Found %s texts in train.csv' % len(texts_1))
 
-    test_texts_1 = []
-    test_texts_2 = []
-    test_ids = []
-    with codecs.open(TEST_DATA_FILE, encoding='utf-8') as f:
-        reader = csv.reader(f, delimiter=',')
-        header = next(reader)
-        for values in reader:
-            test_texts_1.append(text_to_wordlist(values[1], False, False))
-            test_texts_2.append(text_to_wordlist(values[2], False, False))
-            test_ids.append(values[0])
-            # break
-    print('Found %s texts in test.csv' % len(test_texts_1))
+    # test_texts_1 = []
+    # test_texts_2 = []
+    # test_ids = []
+    # with codecs.open(TEST_DATA_FILE, encoding='utf-8') as f:
+    #     reader = csv.reader(f, delimiter=',')
+    #     header = next(reader)
+    #     for values in reader:
+    #         test_texts_1.append(text_to_wordlist(values[1], False, False))
+    #         test_texts_2.append(text_to_wordlist(values[2], False, False))
+    #         test_ids.append(values[0])
+    #         # break
+    # print('Found %s texts in test.csv' % len(test_texts_1))
 
     tokenizer = Tokenizer(num_words=MAX_NB_WORDS)
-    tokenizer.fit_on_texts(texts_1 + texts_2 + test_texts_1 + test_texts_2)
+    tokenizer.fit_on_texts(texts_1 + texts_2)
+    # tokenizer.fit_on_texts(texts_1 + texts_2 + test_texts_1 + test_texts_2)
 
     sequences_1 = tokenizer.texts_to_sequences(texts_1)
     sequences_2 = tokenizer.texts_to_sequences(texts_2)
-    test_sequences_1 = tokenizer.texts_to_sequences(test_texts_1)
-    test_sequences_2 = tokenizer.texts_to_sequences(test_texts_2)
+    # test_sequences_1 = tokenizer.texts_to_sequences(test_texts_1)
+    # test_sequences_2 = tokenizer.texts_to_sequences(test_texts_2)
 
     word_index = tokenizer.word_index
     print('Found %s unique tokens' % len(word_index))
@@ -119,52 +120,21 @@ if __name__ == '__main__':
     ########################################
     ## define the model structure
     ########################################
-    # model = abhishek(nb_words, EMBEDDING_DIM, embedding_matrix, MAX_SEQUENCE_LENGTH, num_lstm, num_dense, rate_drop_lstm, rate_drop_dense, act)
-    # model_name = 'abhishek'
-    # model = lystdo(nb_words, EMBEDDING_DIM, embedding_matrix, MAX_SEQUENCE_LENGTH, num_lstm, num_dense, rate_drop_lstm, rate_drop_dense, act)
-    # model_name = 'lystdo'
-    # model = lstm_add(nb_words, EMBEDDING_DIM, embedding_matrix, MAX_SEQUENCE_LENGTH, num_lstm, num_dense, rate_drop_lstm, rate_drop_dense, act)
-    # model_name = 'lstm_add'
-    # model = lstm_multiply(nb_words, EMBEDDING_DIM, embedding_matrix, MAX_SEQUENCE_LENGTH, num_lstm, num_dense, rate_drop_lstm, rate_drop_dense, act)
-    # model_name = 'lstm_multiply'
-    # model = bilstm_concat(nb_words, EMBEDDING_DIM, embedding_matrix, MAX_SEQUENCE_LENGTH, num_lstm, num_dense, rate_drop_lstm, rate_drop_dense, act)
-    # model_name = 'bilstm_concat'
-    # model = bigru_multiply(nb_words, EMBEDDING_DIM, embedding_matrix, MAX_SEQUENCE_LENGTH, num_lstm, num_dense, rate_drop_lstm, rate_drop_dense, act)
-    # model_name = 'bigru_multiply'
     
-    # model = gru_concat(nb_words, EMBEDDING_DIM, embedding_matrix, MAX_SEQUENCE_LENGTH, num_lstm, num_dense, rate_drop_lstm, rate_drop_dense, act)
-    # model_name = 'gru_concat'
-    # model = gru_add(nb_words, EMBEDDING_DIM, embedding_matrix, MAX_SEQUENCE_LENGTH, num_lstm, num_dense, rate_drop_lstm, rate_drop_dense, act)
-    # model_name = 'gru_add'
-    # model = gru_multiply(nb_words, EMBEDDING_DIM, embedding_matrix, MAX_SEQUENCE_LENGTH, num_lstm, num_dense, rate_drop_lstm, rate_drop_dense, act)
-    # model_name = 'gru_multiply'
-    # model = gru_add_multiply(nb_words, EMBEDDING_DIM, embedding_matrix, MAX_SEQUENCE_LENGTH, num_lstm, num_dense, rate_drop_lstm, rate_drop_dense, act)
-    # model_name = 'gru_add_multiply'
-    # model = gru_attention_multiply(nb_words, EMBEDDING_DIM, embedding_matrix, MAX_SEQUENCE_LENGTH, num_lstm, num_dense, rate_drop_lstm, rate_drop_dense, act)
-    # model_name = 'gru_attention_multiply'
-    # model = gru_distance(nb_words, EMBEDDING_DIM, embedding_matrix, MAX_SEQUENCE_LENGTH, num_lstm, num_dense, rate_drop_lstm, rate_drop_dense, act)
-    # model_name = 'gru_distance'
-    # model = bigru_concat(nb_words, EMBEDDING_DIM, embedding_matrix, MAX_SEQUENCE_LENGTH, num_lstm, num_dense, rate_drop_lstm, rate_drop_dense, act)
-    # model_name = 'bigru_concat'
-    model = bigru_multiply(nb_words, EMBEDDING_DIM, embedding_matrix, MAX_SEQUENCE_LENGTH, num_lstm, num_dense, rate_drop_lstm, rate_drop_dense, act)
-    model_name = 'bigru_multiply'
-    # model = bigru_multiply_dense_more(nb_words, EMBEDDING_DIM, embedding_matrix, MAX_SEQUENCE_LENGTH, num_lstm, num_dense, rate_drop_lstm, rate_drop_dense, act)
-    # model_name = 'bigru_multiply_dense_more'
-    # model = bi2gru_multiply(nb_words, EMBEDDING_DIM, embedding_matrix, MAX_SEQUENCE_LENGTH, num_lstm, num_dense, rate_drop_lstm, rate_drop_dense, act)
-    # model_name = 'bi2gru_multiply'
-    # model = bigru_multiply_no_dense(nb_words, EMBEDDING_DIM, embedding_matrix, MAX_SEQUENCE_LENGTH, num_lstm, num_dense, rate_drop_lstm, rate_drop_dense, act)
-    # model_name = 'bigru_multiply_no_dense'
-    # model = bigru_add_multiply(nb_words, EMBEDDING_DIM, embedding_matrix, MAX_SEQUENCE_LENGTH, num_lstm, num_dense, rate_drop_lstm, rate_drop_dense, act)
-    # model_name = 'bigru_add_multiply'
+    model = basic_baseline(nb_words, EMBEDDING_DIM, \
+                           embedding_matrix, MAX_SEQUENCE_LENGTH, \
+                           num_rnn, num_dense, rate_drop_rnn, \
+                           rate_drop_dense, act)
+    model_name = 'basic_baseline'
 
-    # model = cnn_multiply(nb_words, EMBEDDING_DIM, embedding_matrix, MAX_SEQUENCE_LENGTH, num_lstm, num_dense, rate_drop_lstm, rate_drop_dense, act)
-    # model_name = 'cnn_multiply'
+    # model = cnn_rnn(nb_words, EMBEDDING_DIM, \
+    #                        embedding_matrix, MAX_SEQUENCE_LENGTH, \
+    #                        num_rnn, num_dense, rate_drop_rnn, \
+    #                        rate_drop_dense, act)
+    # model_name = 'cnn_rnn'
     
-    # model = bilstm_distance_angle(nb_words, EMBEDDING_DIM, embedding_matrix, MAX_SEQUENCE_LENGTH, num_lstm, num_dense, rate_drop_lstm, rate_drop_dense, act)
-    # model_name = 'bilstm_distance_angle'
-    
-    # early_stopping =EarlyStopping(monitor='val_acc', patience=3)
-    early_stopping =EarlyStopping(monitor='val_loss', patience=5)
+    early_stopping =EarlyStopping(monitor='val_acc', patience=3)
+    # early_stopping =EarlyStopping(monitor='val_loss', patience=5)
     bst_model_path = './models/' + model_name + STAMP + '.h5'
     model_checkpoint = ModelCheckpoint(bst_model_path, save_best_only=True, save_weights_only=True)
 
@@ -181,7 +151,7 @@ if __name__ == '__main__':
 
     hist = model.fit([data_1_train, data_2_train], labels_train, 
                      validation_data=([data_1_val, data_2_val], labels_val, weight_val), 
-                     epochs=200, batch_size=128, shuffle=True, 
+                     epochs=200, batch_size=512, shuffle=True, 
                      class_weight=class_weight, callbacks=[early_stopping, model_checkpoint])
 
     print(bst_model_path)

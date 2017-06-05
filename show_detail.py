@@ -17,7 +17,6 @@ from keras.layers.advanced_activations import PReLU
 from keras.layers.normalization import BatchNormalization
 from keras.callbacks import EarlyStopping, ModelCheckpoint
 from keras import backend as K
-from keras.utils import plot_model
 
 # import theano
 # theano.config.device = 'gpu'
