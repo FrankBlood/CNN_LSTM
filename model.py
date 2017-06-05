@@ -18,10 +18,14 @@ from keras.layers.normalization import BatchNormalization
 from keras.callbacks import EarlyStopping, ModelCheckpoint
 from keras import backend as K
 
+# import theano
+# theano.config.device = 'gpu'
+# theano.config.floatX = 'float32'
+
 ########################################
-## Bradley  define the model structure
+## CNN based RNN
 ########################################
-def bradley(nb_words, EMBEDDING_DIM, \
+def cnn_rnn(nb_words, EMBEDDING_DIM, \
             embedding_matrix, MAX_SEQUENCE_LENGTH, \
             num_lstm, num_dense, rate_drop_lstm, \
             rate_drop_dense, act):
@@ -30,6 +34,7 @@ def bradley(nb_words, EMBEDDING_DIM, \
                                 weights=[embedding_matrix],
                                 input_length=MAX_SEQUENCE_LENGTH,
                                 trainable=False)
+    lstm_layer = Bidirectional(GRU(num_lstm, dropout=rate_drop_lstm, recurrent_dropout=rate_drop_lstm))
 
     sequence_1_input = Input(shape=(MAX_SEQUENCE_LENGTH,), dtype='int32')
     embedded_sequences_1 = embedding_layer(sequence_1_input)
@@ -37,24 +42,118 @@ def bradley(nb_words, EMBEDDING_DIM, \
     sequence_2_input = Input(shape=(MAX_SEQUENCE_LENGTH,), dtype='int32')
     embedded_sequences_2 = embedding_layer(sequence_2_input)
 
-    x1 = TimeDistributed(Dense(EMBEDDING_DIM, activation='relu'))(embedded_sequences_1)
-    x1 = Lambda(lambda x: K.max(x, axis=1), output_shape=(EMBEDDING_DIM, ))(x1)
+    cnn_1 = Convolution1D(nb_filter=64,
+                             filter_length=4,
+                             border_mode='valid',
+                             activation='relu',
+                             subsample_length=1)(embedded_sequences_1)
+    cnn_1 = Dropout(0.2)(cnn_1)
+    cnn_1 = Convolution1D(nb_filter=64,
+                             filter_length=4,
+                             border_mode='valid',
+                             activation='relu',
+                             subsample_length=1)(cnn_1)
+    cnn_1 = GlobalMaxPooling1D()(cnn_1)
+    cnn_1 = Dropout(0.2)(cnn_1)
+    cnn_1 = Dense(300)(cnn_1)
+    cnn_1 = Dropout(0.2)(cnn_1)
+    cnn_1 = BatchNormalization()(cnn_1)
 
-    y1 = TimeDistributed(Dense(EMBEDDING_DIM, activation='relu'))(embedded_sequences_2)
-    y1 = Lambda(lambda x: K.max(x, axis=1), output_shape=(EMBEDDING_DIM, ))(y1)
+    cnn_2 = Convolution1D(nb_filter=64,
+                             filter_length=4,
+                             border_mode='valid',
+                             activation='relu',
+                             subsample_length=1)(embedded_sequences_2)
+    cnn_2 = Dropout(0.2)(cnn_2)
+    cnn_2 = Convolution1D(nb_filter=64,
+                             filter_length=4,
+                             border_mode='valid',
+                             activation='relu',
+                             subsample_length=1)(cnn_2)
+    cnn_2 = GlobalMaxPooling1D()(cnn_2)
+    cnn_2 = Dropout(0.2)(cnn_2)
+    cnn_2 = Dense(300)(cnn_2)
+    cnn_2 = Dropout(0.2)(cnn_2)
+    cnn_2 = BatchNormalization()(cnn_2)
 
-    merged = concatenate([x1, y1])
+    x1 = dot([cnn_1, embedded_sequences_1])
+    x1 = Activation('softmax')(x1)
+    x1 = dot([x1, embedded_sequences_1])
+
+    x2 = dot([cnn_2, embedded_sequences_2])
+    x2 = Activation('softmax')(x2)
+    x2 = dot([x2, embedded_sequences_2])
+
+    x1 = lstm_layer(x1)
+
+    x2 = lstm_layer(x2)
+
+    merged = multiply([x1, x2])
+    merged = Dropout(rate_drop_dense)(merged)
     merged = BatchNormalization()(merged)
-    merged = Dense(200, activation='relu')(merged)
+
+    merged = Dense(num_dense, activation=act)(merged)
+    merged = Dropout(rate_drop_dense)(merged)
     merged = BatchNormalization()(merged)
-    merged = Dense(200, activation='relu')(merged)
-    merged = BatchNormalization()(merged)
-    merged = Dense(200, activation='relu')(merged)
-    merged = BatchNormalization()(merged)
-    merged = Dense(200, activation='relu')(merged)
-    merged = BatchNormalization()(merged)
-    
+
     preds = Dense(1, activation='sigmoid')(merged)
+
+    # x1 = TimeDistributed(Dense(EMBEDDING_DIM, activation='relu'))(embedded_sequences_1)
+    # x1 = Lambda(lambda x: K.max(x, axis=1), output_shape=(EMBEDDING_DIM, ))(x1)
+
+    # y1 = TimeDistributed(Dense(EMBEDDING_DIM, activation='relu'))(embedded_sequences_2)
+    # y1 = Lambda(lambda x: K.max(x, axis=1), output_shape=(EMBEDDING_DIM, ))(y1)
+
+    ########################################
+    ## train the model
+    ########################################
+    model = Model(inputs=[sequence_1_input, sequence_2_input], outputs=preds)
+    model.compile(loss='binary_crossentropy',
+              optimizer='nadam',
+              metrics=['acc'])
+    model.summary()
+    # print(STAMP)
+    return model
+
+########################################
+## basic baseline
+########################################
+def basic_baseline(nb_words, EMBEDDING_DIM, \
+            embedding_matrix, MAX_SEQUENCE_LENGTH, \
+            num_lstm, num_dense, rate_drop_lstm, \
+            rate_drop_dense, act):
+    embedding_layer = Embedding(nb_words,
+                                EMBEDDING_DIM,
+                                weights=[embedding_matrix],
+                                input_length=MAX_SEQUENCE_LENGTH,
+                                trainable=False)
+    lstm_layer = Bidirectional(GRU(num_lstm, dropout=rate_drop_lstm, recurrent_dropout=rate_drop_lstm))
+
+    sequence_1_input = Input(shape=(MAX_SEQUENCE_LENGTH,), dtype='int32')
+    embedded_sequences_1 = embedding_layer(sequence_1_input)
+
+    sequence_2_input = Input(shape=(MAX_SEQUENCE_LENGTH,), dtype='int32')
+    embedded_sequences_2 = embedding_layer(sequence_2_input)
+
+    x1 = lstm_layer(embedded_sequences_1)
+
+    x2 = lstm_layer(embedded_sequences_2)
+
+    merged = multiply([x1, x2])
+    merged = Dropout(rate_drop_dense)(merged)
+    merged = BatchNormalization()(merged)
+
+    merged = Dense(num_dense, activation=act)(merged)
+    merged = Dropout(rate_drop_dense)(merged)
+    merged = BatchNormalization()(merged)
+
+    preds = Dense(1, activation='sigmoid')(merged)
+
+    # x1 = TimeDistributed(Dense(EMBEDDING_DIM, activation='relu'))(embedded_sequences_1)
+    # x1 = Lambda(lambda x: K.max(x, axis=1), output_shape=(EMBEDDING_DIM, ))(x1)
+
+    # y1 = TimeDistributed(Dense(EMBEDDING_DIM, activation='relu'))(embedded_sequences_2)
+    # y1 = Lambda(lambda x: K.max(x, axis=1), output_shape=(EMBEDDING_DIM, ))(y1)
 
     ########################################
     ## train the model
@@ -203,50 +302,6 @@ def abhishek(nb_words, EMBEDDING_DIM, \
     return model
 
 ########################################
-## lystdo define the model structure
-########################################
-def lystdo(nb_words, EMBEDDING_DIM, \
-           embedding_matrix, MAX_SEQUENCE_LENGTH, \
-           num_lstm, num_dense, rate_drop_lstm, \
-           rate_drop_dense, act):
-    embedding_layer = Embedding(nb_words,
-                                EMBEDDING_DIM,
-                                weights=[embedding_matrix],
-                                input_length=MAX_SEQUENCE_LENGTH,
-                                trainable=False)
-    lstm_layer = LSTM(num_lstm, dropout=rate_drop_lstm, recurrent_dropout=rate_drop_lstm)
-
-    sequence_1_input = Input(shape=(MAX_SEQUENCE_LENGTH,), dtype='int32')
-    embedded_sequences_1 = embedding_layer(sequence_1_input)
-    x1 = lstm_layer(embedded_sequences_1)
-
-    sequence_2_input = Input(shape=(MAX_SEQUENCE_LENGTH,), dtype='int32')
-    embedded_sequences_2 = embedding_layer(sequence_2_input)
-    y1 = lstm_layer(embedded_sequences_2)
-
-    merged = concatenate([x1, y1])
-    merged = Dropout(rate_drop_dense)(merged)
-    merged = BatchNormalization()(merged)
-
-    merged = Dense(num_dense, activation=act)(merged)
-    merged = Dropout(rate_drop_dense)(merged)
-    merged = BatchNormalization()(merged)
-
-    preds = Dense(1, activation='sigmoid')(merged)
-
-    ########################################
-    ## train the model
-    ########################################
-    model = Model(inputs=[sequence_1_input, sequence_2_input], outputs=preds)
-    model.compile(loss='binary_crossentropy',
-              optimizer='nadam',
-              metrics=['acc'])
-    model.summary()
-    # print(STAMP)
-    return model
-
-
-########################################
 ## GRU attention multiply
 ########################################
 def gru_attention_multiply(nb_words, EMBEDDING_DIM, \
@@ -357,52 +412,4 @@ def gru_distance(nb_words, EMBEDDING_DIM, \
                   metrics=['acc'])
     model.summary()
     # print(STAMP)
-    return model
-
-def bilstm_distance_angle_(nb_words, EMBEDDING_DIM, \
-                          embedding_matrix, MAX_SEQUENCE_LENGTH, \
-                          num_lstm, num_dense, rate_drop_lstm, \
-                          rate_drop_dense, act):
-    model_q1 = Sequential()
-    model_q1.add(Input(shape=(MAX_SEQUENCE_LENGTH,), dtype='int32'))
-    model_q1.add(Embedding(nb_words, EMBEDDING_DIM, weights=[embedding_matrix], input_length=MAX_SEQUENCE_LENGTH, trainable=False))
-    model_q1.add(Bidirectional(LSTM(num_lstm)))
-    # model_q1.add(Bidirectional(LSTM(64)))
-    model_q1.add(Dropout(rate_drop_lstm))
-    model_q1.add(RepeatVector(num_lstm))
-
-    model_q2 = Sequential()
-    model_q2.add(Input(shape=(MAX_SEQUENCE_LENGTH,), dtype='int32'))
-    model_q2.add(Embedding(nb_words, EMBEDDING_DIM, weights=[embedding_matrix], input_length=MAX_SEQUENCE_LENGTH, trainable=False))
-    model_q2.add(Bidirectional(LSTM(num_lstm)))
-    # model_q2.add(Bidirectional(LSTM(64)))
-    model_q2.add(Dropout(rate_drop_lstm))
-    model_q2.add(RepeatVector(num_lstm))
-
-    distance = Sequential()
-    distance.add(Merge([model_q1, model_q2], mode='sum'))
-    angle = Sequential()
-    angle.add(Merge([model_q1, model_q2], mode='dot'))
-
-    model = Sequential()
-    model.add(Merge([distance, angle], mode='concat'))
-    model.add(Bidirectional(LSTM(num_lstm)))
-    model.add(Dropout(rate_drop_lstm))
-    model.add(Dense(num_dense, activation=act))
-    model.add(Dropout(rate_drop_dense))
-    model.add(BatchNormalization())
-    # model.add(Dense(128, activation='relu'))
-    model.add(Dense(1, activation='sigmoid'))
-
-    # try using different optimizers and different optimizer configs
-    # rmsprop = RMSprop(lr=0.001, rho=0.9, epsilon=1e-06)
-    # sgd = SGD(lr=0.01, momentum=0.0, decay=0.0, nesterov=False)
-    # adagrad = Adagrad(lr=0.01, epsilon=1e-06)
-    # adadelta = Adadelta(lr=1.0, rho=0.95, epsilon=1e-06)
-    # adam = Adam(lr=0.001, beta_1=0.9, beta_2=0.999, epsilon=1e-08)
-    # adamax = Adamax(lr=0.002, beta_1=0.9, beta_2=0.999, epsilon=1e-08)
-    # nadam = Nadam(lr=0.002, beta_1=0.9, beta_2=0.999, epsilon=1e-08, schedule_decay=0.004)
-    model.compile('adam', 'binary_crossentropy', metrics=['accuracy'])
-    model.summary()
-    print(STAMP)
     return model
