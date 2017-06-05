@@ -1,4 +1,4 @@
 /models
 /log
 *.pyc
-id
+id*
