@@ -17,7 +17,7 @@ from keras.layers.advanced_activations import PReLU
 from keras.layers.normalization import BatchNormalization
 from keras.callbacks import EarlyStopping, ModelCheckpoint
 from keras import backend as K
-# from keras.utils import plot_model
+from keras.utils import plot_model
 
 # import theano
 # theano.config.device = 'gpu'
@@ -42,45 +42,33 @@ def cnn_rnn(nb_words=10000, EMBEDDING_DIM=200, \
     sequence_2_input = Input(shape=(MAX_SEQUENCE_LENGTH,), dtype='int32')
     embedded_sequences_2 = embedding_layer(sequence_2_input)
 
-    cnn_1 = Conv1D(nb_filter=64,
-                             filter_length=4,
-                             border_mode='valid',
-                             activation='relu',
-                             subsample_length=1)(embedded_sequences_1)
+    cnn_1 = Conv1D(activation="relu", padding="valid", strides=1, filters=64, kernel_size=4)(embedded_sequences_1)
     cnn_1 = Dropout(0.2)(cnn_1)
-    cnn_1 = Conv1D(nb_filter=64,
-                             filter_length=4,
-                             border_mode='valid',
-                             activation='relu',
-                             subsample_length=1)(cnn_1)
+    cnn_1 = Conv1D(activation="relu", padding="valid", strides=1, filters=64, kernel_size=4)(cnn_1)
+
     cnn_1 = GlobalMaxPooling1D()(cnn_1)
     cnn_1 = Dropout(0.2)(cnn_1)
     cnn_1 = Dense(200)(cnn_1)
     cnn_1 = Dropout(0.2)(cnn_1)
     cnn_1 = BatchNormalization()(cnn_1)
 
-    cnn_2 = Conv1D(nb_filter=64,
-                             filter_length=4,
-                             border_mode='valid',
-                             activation='relu',
-                             subsample_length=1)(embedded_sequences_2)
+    cnn_2 = Conv1D(activation="relu", padding="valid", strides=1, filters=64, kernel_size=4)(embedded_sequences_2)
     cnn_2 = Dropout(0.2)(cnn_2)
-    cnn_2 = Conv1D(nb_filter=64,
-                             filter_length=4,
-                             border_mode='valid',
-                             activation='relu',
-                             subsample_length=1)(cnn_2)
+    cnn_2 = Conv1D(activation="relu", padding="valid", strides=1, filters=64, kernel_size=4)(cnn_2)
+    
     cnn_2 = GlobalMaxPooling1D()(cnn_2)
     cnn_2 = Dropout(0.2)(cnn_2)
     cnn_2 = Dense(200)(cnn_2)
     cnn_2 = Dropout(0.2)(cnn_2)
     cnn_2 = BatchNormalization()(cnn_2)
+    print cnn_1.shape
+    print embedded_sequences_1.shape
 
-    x1 = multiply([cnn_1, embedded_sequences_1])
+    x1 = TimeDistributed(Lambda(lambda x: dot([x, cnn_1], 1)))(embedded_sequences_1)
     x1 = Activation('softmax')(x1)
     x1 = multiply([x1, embedded_sequences_1])
 
-    x2 = multiply([cnn_2, embedded_sequences_2])
+    x2 = TimeDistributed(Lambda(lambda x: dot([x, cnn_2], 1)))(embedded_sequences_2)
     x2 = Activation('softmax')(x2)
     x2 = multiply([x2, embedded_sequences_2])
 
@@ -168,3 +156,4 @@ def basic_baseline(nb_words=10000, EMBEDDING_DIM=200, \
 if __name__ == '__main__':
     model = cnn_rnn()
     # model = basic_baseline()
+    plot_model(model, to_file='model.png', show_shapes=True)
