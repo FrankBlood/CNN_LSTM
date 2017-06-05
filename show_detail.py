@@ -26,9 +26,9 @@ from keras.utils import plot_model
 ########################################
 ## CNN based RNN
 ########################################
-def cnn_rnn(nb_words=10000, EMBEDDING_DIM=200, \
+def cnn_rnn(nb_words=10000, EMBEDDING_DIM=300, \
             MAX_SEQUENCE_LENGTH=20, \
-            num_lstm=200, num_dense=200, rate_drop_lstm=0.5, \
+            num_lstm=300, num_dense=300, rate_drop_lstm=0.5, \
             rate_drop_dense=0.5, act='relu'):
     embedding_layer = Embedding(nb_words,
                                 EMBEDDING_DIM,
@@ -48,7 +48,7 @@ def cnn_rnn(nb_words=10000, EMBEDDING_DIM=200, \
 
     cnn_1 = GlobalMaxPooling1D()(cnn_1)
     cnn_1 = Dropout(0.2)(cnn_1)
-    cnn_1 = Dense(200)(cnn_1)
+    cnn_1 = Dense(300)(cnn_1)
     cnn_1 = Dropout(0.2)(cnn_1)
     cnn_1 = BatchNormalization()(cnn_1)
 
@@ -58,11 +58,14 @@ def cnn_rnn(nb_words=10000, EMBEDDING_DIM=200, \
     
     cnn_2 = GlobalMaxPooling1D()(cnn_2)
     cnn_2 = Dropout(0.2)(cnn_2)
-    cnn_2 = Dense(200)(cnn_2)
+    cnn_2 = Dense(300)(cnn_2)
     cnn_2 = Dropout(0.2)(cnn_2)
     cnn_2 = BatchNormalization()(cnn_2)
+    
     print cnn_1.shape
+    print cnn_2.shape
     print embedded_sequences_1.shape
+    print embedded_sequences_2.shape
 
     x1 = TimeDistributed(Lambda(lambda x: dot([x, cnn_1], 1)))(embedded_sequences_1)
     x1 = Activation('softmax')(x1)
@@ -156,4 +159,4 @@ def basic_baseline(nb_words=10000, EMBEDDING_DIM=200, \
 if __name__ == '__main__':
     model = cnn_rnn()
     # model = basic_baseline()
-    plot_model(model, to_file='model.png', show_shapes=True)
+    # plot_model(model, to_file='model.png', show_shapes=True)
