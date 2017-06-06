@@ -13,6 +13,7 @@ The code is tested on Keras 2.0.0 using Tensorflow backend, and Python 2.7
 ## import packages
 ########################################
 import os
+import sys
 import re
 import csv
 import codecs
@@ -120,18 +121,23 @@ if __name__ == '__main__':
     ########################################
     ## define the model structure
     ########################################
-    
-    model = basic_baseline(nb_words, EMBEDDING_DIM, \
-                           embedding_matrix, MAX_SEQUENCE_LENGTH, \
-                           num_rnn, num_dense, rate_drop_rnn, \
-                           rate_drop_dense, act)
-    model_name = 'basic_baseline'
 
-    # model = cnn_rnn(nb_words, EMBEDDING_DIM, \
-    #                        embedding_matrix, MAX_SEQUENCE_LENGTH, \
-    #                        num_rnn, num_dense, rate_drop_rnn, \
-    #                        rate_drop_dense, act)
-    # model_name = 'cnn_rnn'
+    if sys.argv[1] == '0':
+    
+        model = basic_baseline(nb_words, EMBEDDING_DIM, \
+                               embedding_matrix, MAX_SEQUENCE_LENGTH, \
+                               num_rnn, num_dense, rate_drop_rnn, \
+                               rate_drop_dense, act)
+        model_name = 'basic_baseline'
+    elif sys.argv[1] == '1':
+
+        model = cnn_rnn(nb_words, EMBEDDING_DIM, \
+                        embedding_matrix, MAX_SEQUENCE_LENGTH, \
+                        num_rnn, num_dense, rate_drop_rnn, \
+                        rate_drop_dense, act)
+        model_name = 'cnn_rnn'
+    else:
+        print("what the fuck!")
     
     early_stopping =EarlyStopping(monitor='val_acc', patience=3)
     # early_stopping =EarlyStopping(monitor='val_loss', patience=5)
@@ -151,7 +157,7 @@ if __name__ == '__main__':
 
     hist = model.fit([data_1_train, data_2_train], labels_train, 
                      validation_data=([data_1_val, data_2_val], labels_val, weight_val), 
-                     epochs=200, batch_size=512, shuffle=True, 
+                     epochs=200, batch_size=1, shuffle=True, 
                      class_weight=class_weight, callbacks=[early_stopping, model_checkpoint])
 
     print(bst_model_path)
