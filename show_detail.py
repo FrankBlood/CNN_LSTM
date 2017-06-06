@@ -26,14 +26,16 @@ from keras import backend as K
 ## CNN based RNN
 ########################################
 def cnn_rnn(nb_words=10000, EMBEDDING_DIM=300, \
-            MAX_SEQUENCE_LENGTH=20, \
-            num_lstm=300, num_dense=300, rate_drop_lstm=0.5, \
-            rate_drop_dense=0.5, act='relu'):
+            MAX_SEQUENCE_LENGTH=50, \
+            num_rnn=300, num_dense=300, rate_drop_rnn=0.25, \
+            rate_drop_dense=0.25, act='relu'):
     embedding_layer = Embedding(nb_words,
                                 EMBEDDING_DIM,
-                                input_length=MAX_SEQUENCE_LENGTH)
-
-    lstm_layer = Bidirectional(GRU(num_lstm, dropout=rate_drop_lstm, recurrent_dropout=rate_drop_lstm))
+                                input_length=MAX_SEQUENCE_LENGTH,
+                                trainable=False)
+    rnn_layer = Bidirectional(GRU(num_rnn, dropout=rate_drop_rnn, recurrent_dropout=rate_drop_rnn))
+    cnn_layer = Conv1D(activation="relu", padding="valid", strides=1, filters=32, kernel_size=4)
+    pooling_layer = GlobalMaxPooling1D()
 
     sequence_1_input = Input(shape=(MAX_SEQUENCE_LENGTH,), dtype='int32')
     embedded_sequences_1 = embedding_layer(sequence_1_input)
@@ -41,30 +43,24 @@ def cnn_rnn(nb_words=10000, EMBEDDING_DIM=300, \
     sequence_2_input = Input(shape=(MAX_SEQUENCE_LENGTH,), dtype='int32')
     embedded_sequences_2 = embedding_layer(sequence_2_input)
 
-    cnn_1 = Conv1D(activation="relu", padding="valid", strides=1, filters=64, kernel_size=4)(embedded_sequences_1)
-    # cnn_1 = Dropout(0.2)(cnn_1)
-    # cnn_1 = Conv1D(activation="relu", padding="valid", strides=1, filters=64, kernel_size=4)(cnn_1)
-
-    cnn_1 = GlobalMaxPooling1D()(cnn_1)
+    cnn_1 = cnn_layer(embedded_sequences_1)
+    cnn_1 = pooling_layer(cnn_1)
     cnn_1 = Dropout(0.2)(cnn_1)
     cnn_1 = Dense(300)(cnn_1)
     cnn_1 = Dropout(0.2)(cnn_1)
     cnn_1 = BatchNormalization()(cnn_1)
 
-    cnn_2 = Conv1D(activation="relu", padding="valid", strides=1, filters=64, kernel_size=4)(embedded_sequences_2)
-    # cnn_2 = Dropout(0.2)(cnn_2)
-    # cnn_2 = Conv1D(activation="relu", padding="valid", strides=1, filters=64, kernel_size=4)(cnn_2)
-    
-    cnn_2 = GlobalMaxPooling1D()(cnn_2)
+    cnn_2 = cnn_layer(embedded_sequences_2)    
+    cnn_2 = pooling_layer(cnn_2)
     cnn_2 = Dropout(0.2)(cnn_2)
     cnn_2 = Dense(300)(cnn_2)
     cnn_2 = Dropout(0.2)(cnn_2)
     cnn_2 = BatchNormalization()(cnn_2)
     
-    print cnn_1.shape
-    print cnn_2.shape
-    print embedded_sequences_1.shape
-    print embedded_sequences_2.shape
+    # print cnn_1.shape
+    # print cnn_2.shape
+    # print embedded_sequences_1.shape
+    # print embedded_sequences_2.shape
 
     x1 = TimeDistributed(Lambda(lambda x: dot([x, cnn_1], 1)))(embedded_sequences_1)
     x1 = Activation('softmax')(x1)
@@ -74,12 +70,11 @@ def cnn_rnn(nb_words=10000, EMBEDDING_DIM=300, \
     x2 = Activation('softmax')(x2)
     x2 = multiply([x2, embedded_sequences_2])
 
-    x1 = lstm_layer(x1)
+    x1 = rnn_layer(x1)
 
-    x2 = lstm_layer(x2)
+    x2 = rnn_layer(x2)
 
-    # merged = multiply([x1, x2])
-    merged = multiply([cnn_1, cnn_2])
+    merged = multiply([x1, x2])
     merged = Dropout(rate_drop_dense)(merged)
     merged = BatchNormalization()(merged)
 
