@@ -173,13 +173,16 @@ def basic_attention(nb_words, EMBEDDING_DIM, \
                                 weights=[embedding_matrix],
                                 input_length=MAX_SEQUENCE_LENGTH,
                                 trainable=False)
-    rnn_layer = Bidirectional(GRU(num_rnn, dropout=rate_drop_rnn, recurrent_dropout=rate_drop_rnn, return_sequences=False))
+    rnn_layer = Bidirectional(GRU(num_rnn, dropout=rate_drop_rnn, recurrent_dropout=rate_drop_rnn, return_sequences=True))
 
     sequence_1_input = Input(shape=(MAX_SEQUENCE_LENGTH,), dtype='int32')
     embedded_sequences_1 = embedding_layer(sequence_1_input)
+    print(embedded_sequences_1.shape)
     x1 = rnn_layer(embedded_sequences_1)
+    print(x1.shape)
 
     attention1 = TimeDistributed(Dense(1, activation='tanh'))(x1)
+    print(attention1.shape)
     # attention1 = Flatten()(attention1)
     attention1 = Activation('softmax')(attention1)
     attention1 = RepeatVector(num_rnn)(attention1)
