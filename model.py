@@ -35,7 +35,9 @@ def cnn_rnn(nb_words, EMBEDDING_DIM, \
                                 weights=[embedding_matrix],
                                 input_length=MAX_SEQUENCE_LENGTH,
                                 trainable=False)
-    lstm_layer = Bidirectional(GRU(num_rnn, dropout=rate_drop_rnn, recurrent_dropout=rate_drop_rnn))
+    rnn_layer = Bidirectional(GRU(num_rnn, dropout=rate_drop_rnn, recurrent_dropout=rate_drop_rnn))
+    cnn_layer = Conv1D(activation="relu", padding="valid", strides=1, filters=64, kernel_size=4)
+    pooling_layer = GlobalMaxPooling1D()
 
     sequence_1_input = Input(shape=(MAX_SEQUENCE_LENGTH,), dtype='int32')
     embedded_sequences_1 = embedding_layer(sequence_1_input)
@@ -43,22 +45,22 @@ def cnn_rnn(nb_words, EMBEDDING_DIM, \
     sequence_2_input = Input(shape=(MAX_SEQUENCE_LENGTH,), dtype='int32')
     embedded_sequences_2 = embedding_layer(sequence_2_input)
 
-    cnn_1 = Conv1D(activation="relu", padding="valid", strides=1, filters=64, kernel_size=4)(embedded_sequences_1)
+    cnn_1 = cnn_layer(embedded_sequences_1)
     cnn_1 = Dropout(0.2)(cnn_1)
-    cnn_1 = Conv1D(activation="relu", padding="valid", strides=1, filters=64, kernel_size=4)(cnn_1)
+    # cnn_1 = cnn_layer(cnn_1)
 
-    cnn_1 = GlobalMaxPooling1D()(cnn_1)
-    cnn_1 = Dropout(0.2)(cnn_1)
+    cnn_1 = pooling_layer(cnn_1)
+    # cnn_1 = Dropout(0.2)(cnn_1)
     cnn_1 = Dense(300)(cnn_1)
     cnn_1 = Dropout(0.2)(cnn_1)
     cnn_1 = BatchNormalization()(cnn_1)
 
-    cnn_2 = Conv1D(activation="relu", padding="valid", strides=1, filters=64, kernel_size=4)(embedded_sequences_2)
+    cnn_2 = cnn_layer(embedded_sequences_2)
     cnn_2 = Dropout(0.2)(cnn_2)
-    cnn_2 = Conv1D(activation="relu", padding="valid", strides=1, filters=64, kernel_size=4)(cnn_2)
+    # cnn_2 = cnn_layer(cnn_2)
     
-    cnn_2 = GlobalMaxPooling1D()(cnn_2)
-    cnn_2 = Dropout(0.2)(cnn_2)
+    cnn_2 = pooling_layer(cnn_2)
+    # cnn_2 = Dropout(0.2)(cnn_2)
     cnn_2 = Dense(300)(cnn_2)
     cnn_2 = Dropout(0.2)(cnn_2)
     cnn_2 = BatchNormalization()(cnn_2)
@@ -76,9 +78,9 @@ def cnn_rnn(nb_words, EMBEDDING_DIM, \
     x2 = Activation('softmax')(x2)
     x2 = multiply([x2, embedded_sequences_2])
 
-    x1 = lstm_layer(x1)
+    x1 = rnn_layer(x1)
 
-    x2 = lstm_layer(x2)
+    x2 = rnn_layer(x2)
 
     merged = multiply([x1, x2])
     merged = Dropout(rate_drop_dense)(merged)
@@ -119,7 +121,7 @@ def basic_baseline(nb_words, EMBEDDING_DIM, \
                                 weights=[embedding_matrix],
                                 input_length=MAX_SEQUENCE_LENGTH,
                                 trainable=False)
-    lstm_layer = Bidirectional(GRU(num_rnn, dropout=rate_drop_rnn, recurrent_dropout=rate_drop_rnn))
+    rnn_layer = Bidirectional(GRU(num_rnn, dropout=rate_drop_rnn, recurrent_dropout=rate_drop_rnn))
 
     sequence_1_input = Input(shape=(MAX_SEQUENCE_LENGTH,), dtype='int32')
     embedded_sequences_1 = embedding_layer(sequence_1_input)
@@ -127,9 +129,9 @@ def basic_baseline(nb_words, EMBEDDING_DIM, \
     sequence_2_input = Input(shape=(MAX_SEQUENCE_LENGTH,), dtype='int32')
     embedded_sequences_2 = embedding_layer(sequence_2_input)
 
-    x1 = lstm_layer(embedded_sequences_1)
+    x1 = rnn_layer(embedded_sequences_1)
 
-    x2 = lstm_layer(embedded_sequences_2)
+    x2 = rnn_layer(embedded_sequences_2)
 
     merged = multiply([x1, x2])
     merged = Dropout(rate_drop_dense)(merged)
@@ -159,62 +161,63 @@ def basic_baseline(nb_words, EMBEDDING_DIM, \
     return model
 
 
-# ########################################
-# ## GRU attention multiply
-# ########################################
-# def gru_attention_multiply(nb_words, EMBEDDING_DIM, \
-#            embedding_matrix, MAX_SEQUENCE_LENGTH, \
-#            num_lstm, num_dense, rate_drop_lstm, \
-#            rate_drop_dense, act):
-#     embedding_layer = Embedding(nb_words,
-#                                 EMBEDDING_DIM,
-#                                 weights=[embedding_matrix],
-#                                 input_length=MAX_SEQUENCE_LENGTH,
-#                                 trainable=False)
-#     lstm_layer = GRU(num_lstm, return_sequences=True, dropout=rate_drop_lstm, recurrent_dropout=rate_drop_lstm)
+########################################
+## GRU attention multiply
+########################################
+def basic_attention(nb_words, EMBEDDING_DIM, \
+                    embedding_matrix, MAX_SEQUENCE_LENGTH, \
+                    num_rnn, num_dense, rate_drop_rnn, \
+                    rate_drop_dense, act):
+    embedding_layer = Embedding(nb_words,
+                                EMBEDDING_DIM,
+                                weights=[embedding_matrix],
+                                input_length=MAX_SEQUENCE_LENGTH,
+                                trainable=False)
+    rnn_layer = Bidirectional(GRU(num_rnn, dropout=rate_drop_rnn, recurrent_dropout=rate_drop_rnn, return_sequences=False))
 
-#     sequence_1_input = Input(shape=(MAX_SEQUENCE_LENGTH,), dtype='int32')
-#     embedded_sequences_1 = embedding_layer(sequence_1_input)
-#     x1 = lstm_layer(embedded_sequences_1)
-#     attention1 = TimeDistributed(Dense(1, activation='tanh'))(x1)
-#     attention1 = Flatten()(attention1)
-#     attention1 = Activation('softmax')(attention1)
-#     attention1 = RepeatVector(num_lstm)(attention1)
-#     attention1 = Permute([2, 1])(attention1)
-#     attention1 = multiply([x1, attention1])
-#     x1 = Lambda(lambda xin: K.sum(xin, axis=1))(attention1)
+    sequence_1_input = Input(shape=(MAX_SEQUENCE_LENGTH,), dtype='int32')
+    embedded_sequences_1 = embedding_layer(sequence_1_input)
+    x1 = rnn_layer(embedded_sequences_1)
 
-#     sequence_2_input = Input(shape=(MAX_SEQUENCE_LENGTH,), dtype='int32')
-#     embedded_sequences_2 = embedding_layer(sequence_2_input)
-#     y1 = lstm_layer(embedded_sequences_2)
-#     attention2 = TimeDistributed(Dense(1, activation='tanh'))(y1)
-#     attention2 = Flatten()(attention2)
-#     attention2 = Activation('softmax')(attention2)
-#     attention2 = RepeatVector(num_lstm)(attention2)
-#     attention2 = Permute([2, 1])(attention2)
-#     attention2 = multiply([y1, attention2])
-#     y1 = Lambda(lambda xin: K.sum(xin, axis=1))(attention2)
+    attention1 = TimeDistributed(Dense(1, activation='tanh'))(x1)
+    # attention1 = Flatten()(attention1)
+    attention1 = Activation('softmax')(attention1)
+    attention1 = RepeatVector(num_rnn)(attention1)
+    attention1 = Permute([2, 1])(attention1)
+    attention1 = multiply([x1, attention1])
+    x1 = Lambda(lambda xin: K.sum(xin, axis=1))(attention1)
 
-#     merged = multiply([x1, y1])
-#     merged = Dropout(rate_drop_dense)(merged)
-#     merged = BatchNormalization()(merged)
+    sequence_2_input = Input(shape=(MAX_SEQUENCE_LENGTH,), dtype='int32')
+    embedded_sequences_2 = embedding_layer(sequence_2_input)
+    y1 = rnn_layer(embedded_sequences_2)
+    attention2 = TimeDistributed(Dense(1, activation='tanh'))(y1)
+    # attention2 = Flatten()(attention2)
+    attention2 = Activation('softmax')(attention2)
+    attention2 = RepeatVector(num_rnn)(attention2)
+    attention2 = Permute([2, 1])(attention2)
+    attention2 = multiply([y1, attention2])
+    y1 = Lambda(lambda xin: K.sum(xin, axis=1))(attention2)
 
-#     merged = Dense(num_dense, activation=act)(merged)
-#     merged = Dropout(rate_drop_dense)(merged)
-#     merged = BatchNormalization()(merged)
+    merged = multiply([x1, y1])
+    merged = Dropout(rate_drop_dense)(merged)
+    merged = BatchNormalization()(merged)
 
-#     preds = Dense(1, activation='sigmoid')(merged)
+    merged = Dense(num_dense, activation=act)(merged)
+    merged = Dropout(rate_drop_dense)(merged)
+    merged = BatchNormalization()(merged)
 
-#     ########################################
-#     ## train the model
-#     ########################################
-#     model = Model(inputs=[sequence_1_input, sequence_2_input], outputs=preds)
-#     model.compile(loss='binary_crossentropy',
-#               optimizer='nadam',
-#               metrics=['acc'])
-#     model.summary()
-#     # print(STAMP)
-#     return model
+    preds = Dense(1, activation='sigmoid')(merged)
+
+    ########################################
+    ## train the model
+    ########################################
+    model = Model(inputs=[sequence_1_input, sequence_2_input], outputs=preds)
+    model.compile(loss='binary_crossentropy',
+              optimizer='nadam',
+              metrics=['acc'])
+    model.summary()
+    # print(STAMP)
+    return model
 
 # ########################################
 # ## GRU distance
