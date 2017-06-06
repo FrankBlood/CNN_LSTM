@@ -122,7 +122,7 @@ def cnn_rnn_tmp(nb_words, EMBEDDING_DIM, \
                                 input_length=MAX_SEQUENCE_LENGTH,
                                 trainable=False)
     rnn_layer = Bidirectional(GRU(num_rnn, dropout=rate_drop_rnn, recurrent_dropout=rate_drop_rnn))
-    cnn_layer = Conv1D(activation="relu", padding="valid", strides=1, filters=64, kernel_size=4)
+    cnn_layer = Conv1D(activation="relu", padding="valid", strides=1, filters=32, kernel_size=4)
     pooling_layer = GlobalMaxPooling1D()
 
     sequence_1_input = Input(shape=(MAX_SEQUENCE_LENGTH,), dtype='int32')
