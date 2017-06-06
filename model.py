@@ -162,7 +162,7 @@ def basic_baseline(nb_words, EMBEDDING_DIM, \
 
 
 ########################################
-## GRU attention multiply
+## basic attention
 ########################################
 def basic_attention(nb_words, EMBEDDING_DIM, \
                     embedding_matrix, MAX_SEQUENCE_LENGTH, \

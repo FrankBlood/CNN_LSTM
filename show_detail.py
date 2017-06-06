@@ -155,6 +155,67 @@ def basic_baseline(nb_words=10000, EMBEDDING_DIM=200, \
     # print(STAMP)
     return model
 
+########################################
+## basic attention
+########################################
+def basic_attention(nb_words=10000, EMBEDDING_DIM=300, \
+                    MAX_SEQUENCE_LENGTH=40, \
+                    num_rnn=300, num_dense=300, rate_drop_rnn=0.25, \
+                    rate_drop_dense=0.25, act='relu'):
+    embedding_layer = Embedding(nb_words,
+                                EMBEDDING_DIM,
+                                weights=[embedding_matrix],
+                                input_length=MAX_SEQUENCE_LENGTH,
+                                trainable=False)
+    rnn_layer = Bidirectional(GRU(num_rnn, dropout=rate_drop_rnn, recurrent_dropout=rate_drop_rnn, return_sequences=True))
+
+    sequence_1_input = Input(shape=(MAX_SEQUENCE_LENGTH,), dtype='int32')
+    embedded_sequences_1 = embedding_layer(sequence_1_input)
+    print(embedded_sequences_1.shape)
+    x1 = rnn_layer(embedded_sequences_1)
+    print(x1.shape)
+
+    attention1 = TimeDistributed(Dense(1, activation='tanh'))(x1)
+    print(attention1.shape)
+    attention1 = Flatten()(attention1)
+    attention1 = Activation('softmax')(attention1)
+    attention1 = RepeatVector(num_rnn)(attention1)
+    attention1 = Permute([2, 1])(attention1)
+    attention1 = multiply([x1, attention1])
+    x1 = Lambda(lambda xin: K.sum(xin, axis=1))(attention1)
+
+    sequence_2_input = Input(shape=(MAX_SEQUENCE_LENGTH,), dtype='int32')
+    embedded_sequences_2 = embedding_layer(sequence_2_input)
+    y1 = rnn_layer(embedded_sequences_2)
+    attention2 = TimeDistributed(Dense(1, activation='tanh'))(y1)
+    attention2 = Flatten()(attention2)
+    attention2 = Activation('softmax')(attention2)
+    attention2 = RepeatVector(num_rnn)(attention2)
+    attention2 = Permute([2, 1])(attention2)
+    attention2 = multiply([y1, attention2])
+    y1 = Lambda(lambda xin: K.sum(xin, axis=1))(attention2)
+
+    merged = multiply([x1, y1])
+    merged = Dropout(rate_drop_dense)(merged)
+    merged = BatchNormalization()(merged)
+
+    merged = Dense(num_dense, activation=act)(merged)
+    merged = Dropout(rate_drop_dense)(merged)
+    merged = BatchNormalization()(merged)
+
+    preds = Dense(1, activation='sigmoid')(merged)
+
+    ########################################
+    ## train the model
+    ########################################
+    model = Model(inputs=[sequence_1_input, sequence_2_input], outputs=preds)
+    model.compile(loss='binary_crossentropy',
+              optimizer='nadam',
+              metrics=['acc'])
+    model.summary()
+    # print(STAMP)
+    return model
+
 if __name__ == '__main__':
     model = cnn_rnn()
     # model = basic_baseline()
