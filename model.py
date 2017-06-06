@@ -183,7 +183,7 @@ def basic_attention(nb_words, EMBEDDING_DIM, \
 
     attention1 = TimeDistributed(Dense(1, activation='tanh'))(x1)
     print(attention1.shape)
-    # attention1 = Flatten()(attention1)
+    attention1 = Flatten()(attention1)
     attention1 = Activation('softmax')(attention1)
     attention1 = RepeatVector(num_rnn)(attention1)
     attention1 = Permute([2, 1])(attention1)
@@ -194,7 +194,7 @@ def basic_attention(nb_words, EMBEDDING_DIM, \
     embedded_sequences_2 = embedding_layer(sequence_2_input)
     y1 = rnn_layer(embedded_sequences_2)
     attention2 = TimeDistributed(Dense(1, activation='tanh'))(y1)
-    # attention2 = Flatten()(attention2)
+    attention2 = Flatten()(attention2)
     attention2 = Activation('softmax')(attention2)
     attention2 = RepeatVector(num_rnn)(attention2)
     attention2 = Permute([2, 1])(attention2)
