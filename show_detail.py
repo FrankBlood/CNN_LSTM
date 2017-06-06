@@ -9,7 +9,7 @@ The code is tested on Keras 2.0.0 using Tensorflow backend, and Python 2.7
 ########################################
 from keras.models import Model
 from keras.models import Sequential
-from keras.layers import Dense, Embedding, LSTM, GRU, Conv1D, Conv2D, GlobalMaxPooling1D
+from keras.layers import Dense, Embedding, LSTM, GRU, Conv1D, Conv2D, GlobalMaxPooling1D, ConvLSTM2D
 from keras.layers import Dropout, Input, Bidirectional, Merge, RepeatVector, Activation, TimeDistributed, Flatten, RepeatVector, Permute, Lambda
 from keras.layers.merge import concatenate, add, dot, multiply
 from keras.optimizers import RMSprop, Adam, SGD, Adagrad, Adadelta, Adamax, Nadam
@@ -42,8 +42,8 @@ def cnn_rnn(nb_words=10000, EMBEDDING_DIM=300, \
     embedded_sequences_2 = embedding_layer(sequence_2_input)
 
     cnn_1 = Conv1D(activation="relu", padding="valid", strides=1, filters=64, kernel_size=4)(embedded_sequences_1)
-    cnn_1 = Dropout(0.2)(cnn_1)
-    cnn_1 = Conv1D(activation="relu", padding="valid", strides=1, filters=64, kernel_size=4)(cnn_1)
+    # cnn_1 = Dropout(0.2)(cnn_1)
+    # cnn_1 = Conv1D(activation="relu", padding="valid", strides=1, filters=64, kernel_size=4)(cnn_1)
 
     cnn_1 = GlobalMaxPooling1D()(cnn_1)
     cnn_1 = Dropout(0.2)(cnn_1)
@@ -52,8 +52,8 @@ def cnn_rnn(nb_words=10000, EMBEDDING_DIM=300, \
     cnn_1 = BatchNormalization()(cnn_1)
 
     cnn_2 = Conv1D(activation="relu", padding="valid", strides=1, filters=64, kernel_size=4)(embedded_sequences_2)
-    cnn_2 = Dropout(0.2)(cnn_2)
-    cnn_2 = Conv1D(activation="relu", padding="valid", strides=1, filters=64, kernel_size=4)(cnn_2)
+    # cnn_2 = Dropout(0.2)(cnn_2)
+    # cnn_2 = Conv1D(activation="relu", padding="valid", strides=1, filters=64, kernel_size=4)(cnn_2)
     
     cnn_2 = GlobalMaxPooling1D()(cnn_2)
     cnn_2 = Dropout(0.2)(cnn_2)
@@ -78,7 +78,8 @@ def cnn_rnn(nb_words=10000, EMBEDDING_DIM=300, \
 
     x2 = lstm_layer(x2)
 
-    merged = multiply([x1, x2])
+    # merged = multiply([x1, x2])
+    merged = multiply([cnn_1, cnn_2])
     merged = Dropout(rate_drop_dense)(merged)
     merged = BatchNormalization()(merged)
 
@@ -116,7 +117,7 @@ def basic_baseline(nb_words=10000, EMBEDDING_DIM=200, \
                                 EMBEDDING_DIM,
                                 input_length=MAX_SEQUENCE_LENGTH)
 
-    lstm_layer = Bidirectional(GRU(num_lstm, dropout=rate_drop_lstm, recurrent_dropout=rate_drop_lstm))
+    lstm_layer = Bidirectional(ConvLSTM2D(num_lstm, dropout=rate_drop_lstm, recurrent_dropout=rate_drop_lstm))
 
     sequence_1_input = Input(shape=(MAX_SEQUENCE_LENGTH,), dtype='int32')
     embedded_sequences_1 = embedding_layer(sequence_1_input)
@@ -224,7 +225,7 @@ def basic_attention(nb_words=10000, EMBEDDING_DIM=300, \
     return model
 
 if __name__ == '__main__':
-    # model = cnn_rnn()
-    model = basic_attention()
+    model = cnn_rnn()
+    # model = basic_attention()
     # model = basic_baseline()
     # plot_model(model, to_file='model.png', show_shapes=True)
