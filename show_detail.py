@@ -164,9 +164,7 @@ def basic_attention(nb_words=10000, EMBEDDING_DIM=300, \
                     rate_drop_dense=0.25, act='relu'):
     embedding_layer = Embedding(nb_words,
                                 EMBEDDING_DIM,
-                                weights=[embedding_matrix],
-                                input_length=MAX_SEQUENCE_LENGTH,
-                                trainable=False)
+                                input_length=MAX_SEQUENCE_LENGTH)
     rnn_layer = Bidirectional(GRU(num_rnn, dropout=rate_drop_rnn, recurrent_dropout=rate_drop_rnn, return_sequences=True))
 
     sequence_1_input = Input(shape=(MAX_SEQUENCE_LENGTH,), dtype='int32')
