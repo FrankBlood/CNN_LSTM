@@ -124,6 +124,11 @@ def cnn_rnn_tmp(nb_words, EMBEDDING_DIM, \
     rnn_layer = Bidirectional(GRU(num_rnn, dropout=rate_drop_rnn, recurrent_dropout=rate_drop_rnn))
     cnn_layer = Conv1D(activation="relu", padding="valid", strides=1, filters=32, kernel_size=4)
     pooling_layer = GlobalMaxPooling1D()
+    cnn_dense = Dense(300)
+    cnn_dropout1 = Dropout(0.2)
+    cnn_dropout2 = Dropout(0.2)
+    cnn_batchnormalization = BatchNormalization()
+    cnn_repeatvector = RepeatVector(MAX_SEQUENCE_LENGTH)
 
     sequence_1_input = Input(shape=(MAX_SEQUENCE_LENGTH,), dtype='int32')
     embedded_sequences_1 = embedding_layer(sequence_1_input)
@@ -133,39 +138,38 @@ def cnn_rnn_tmp(nb_words, EMBEDDING_DIM, \
 
     cnn_1 = cnn_layer(embedded_sequences_1)
     cnn_1 = pooling_layer(cnn_1)
-    cnn_1 = Dropout(0.2)(cnn_1)
-    cnn_1 = Dense(300)(cnn_1)
-    cnn_1 = Dropout(0.2)(cnn_1)
-    cnn_1 = BatchNormalization()(cnn_1)
+    cnn_1 = cnn_dropout1(cnn_1)
+    cnn_1 = cnn_dense(cnn_1)
+    cnn_1 = cnn_dropout2(cnn_1)
+    cnn_1 = cnn_batchnormalization(cnn_1)
 
     cnn_2 = cnn_layer(embedded_sequences_2)    
     cnn_2 = pooling_layer(cnn_2)
-    cnn_2 = Dropout(0.2)(cnn_2)
-    cnn_2 = Dense(300)(cnn_2)
-    cnn_2 = Dropout(0.2)(cnn_2)
-    cnn_2 = BatchNormalization()(cnn_2)
+    cnn_2 = cnn_dropout1(cnn_2)
+    cnn_2 = cnn_dense(cnn_2)
+    cnn_2 = cnn_dropout2(cnn_2)
+    cnn_2 = cnn_batchnormalization(cnn_2)
     
-    # print cnn_1.shape
-    # print cnn_2.shape
-    # print embedded_sequences_1.shape
-    # print embedded_sequences_2.shape
+    cnn_1 = cnn_repeatvector(cnn_1)
+    cnn_2 = cnn_repeatvector(cnn_2)
+
+    a1 = multiply([cnn_1, embedded_sequences_1])
+    a2 = multiply([cnn_2, embedded_sequences_2])
     
-    cnn_1 = RepeatVector(MAX_SEQUENCE_LENGTH)(cnn_1)
-    cnn_2 = RepeatVector(MAX_SEQUENCE_LENGTH)(cnn_2)
-
-    # x1 = TimeDistributed(Lambda(lambda x: dot([x, cnn_1], 1)))(embedded_sequences_1)
-    # x1 = Activation('softmax')(x1)
-    # x1 = multiply([x1, embedded_sequences_1])
-
-    # x2 = TimeDistributed(Lambda(lambda x: dot([x, cnn_2], 1)))(embedded_sequences_2)
-    # x2 = Activation('softmax')(x2)
-    # x2 = multiply([x2, embedded_sequences_2])
-
-    a1 = dot([cnn_1, embedded_sequences_1], 1)
-    a2 = dot([cnn_2, embedded_sequences_2], 1)
-
+    a1 = Permute([2, 1])(a1)
+    a2 = Permute([2, 1])(a2)
+    
+    a1 = Lambda(lambda x: K.sum(x, axis=1))(a1)
+    a2 = Lambda(lambda x: K.sum(x, axis=1))(a2)
+    
+    embedded_sequences_1 = Permute([2, 1])(embedded_sequences_1)
+    embedded_sequences_2 = Permute([2, 1])(embedded_sequences_2)
+    
     x1 = multiply([a1, embedded_sequences_1])
     x2 = multiply([a2, embedded_sequences_2])
+
+    x1 = Permute([2, 1])(x1)
+    x2 = Permute([2, 1])(x2)
 
     x1 = rnn_layer(x1)
     x2 = rnn_layer(x2)
