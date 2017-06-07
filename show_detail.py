@@ -260,6 +260,7 @@ def basic_attention(nb_words=10000, EMBEDDING_DIM=300, \
     attention1 = attention_W(x1)
     attention1 = attention_w(attention1)
     attention1 = attention_softmax(attention1)
+    attention1 = Permute([2, 1])(attention1)
     x1 = Permute([2, 1])(x1)
     x1 = multiply([attention1, x1])
     x1 = Permute([2, 1])(x1)
@@ -272,6 +273,7 @@ def basic_attention(nb_words=10000, EMBEDDING_DIM=300, \
     attention2 = attention_W(x2)
     attention2 = attention_w(attention2)
     attention2 = attention_softmax(attention2)
+    attention2 = Permute([2, 1])(attention2)
     x2 = Permute([2, 1])(x2)
     x2 = multiply([attention2, x2])
     x2 = Permute([2, 1])(x2)
@@ -299,8 +301,8 @@ def basic_attention(nb_words=10000, EMBEDDING_DIM=300, \
     return model
 
 if __name__ == '__main__':
-    model = cnn_rnn()
-    model = cnn_rnn_tmp()
-    # model = basic_attention()
+    # model = cnn_rnn()
+    # model = cnn_rnn_tmp()
+    model = basic_attention()
     # model = basic_baseline()
     # plot_model(model, to_file='model.png', show_shapes=True)
