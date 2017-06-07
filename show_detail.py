@@ -40,7 +40,8 @@ def cnn_rnn(nb_words=10000, EMBEDDING_DIM=300, \
     cnn_dropout1 = Dropout(0.2)
     cnn_dropout2 = Dropout(0.2)
     cnn_batchnormalization = BatchNormalization()
-    cnn_repeatvector = RepeatVector(MAX_SEQUENCE_LENGTH)
+    cnn_repeatvector = RepeatVector(EMBEDDING_DIM)
+    cnn_timedistributed = TimeDistributed(Dense(1))
 
     sequence_1_input = Input(shape=(MAX_SEQUENCE_LENGTH,), dtype='int32')
     embedded_sequences_1 = embedding_layer(sequence_1_input)
@@ -62,11 +63,17 @@ def cnn_rnn(nb_words=10000, EMBEDDING_DIM=300, \
     cnn_2 = cnn_dropout2(cnn_2)
     cnn_2 = cnn_batchnormalization(cnn_2)
     
-    # cnn_1 = cnn_repeatvector(cnn_1)
-    # cnn_2 = cnn_repeatvector(cnn_2)
+    cnn_1 = cnn_repeatvector(cnn_1)
+    cnn_2 = cnn_repeatvector(cnn_2)
 
-    a1 = multiply([cnn_1, embedded_sequences_1])
-    a2 = multiply([cnn_2, embedded_sequences_2])
+    cnn_1_t = cnn_timedistributed(cnn_1)
+    cnn_2_t = cnn_timedistributed(cnn_2)
+
+    cnn_1_t = Permute([2, 1])(cnn_1_t)
+    cnn_2_t = Permute([2, 1])(cnn_2_t)
+
+    a1 = multiply([cnn_1_t, embedded_sequences_1])
+    a2 = multiply([cnn_2_t, embedded_sequences_2])
     
     a1 = Permute([2, 1])(a1)
     a2 = Permute([2, 1])(a2)
@@ -301,8 +308,8 @@ def basic_attention(nb_words=10000, EMBEDDING_DIM=300, \
     return model
 
 if __name__ == '__main__':
-    # model = cnn_rnn()
+    model = cnn_rnn()
     # model = cnn_rnn_tmp()
-    model = basic_attention()
+    # model = basic_attention()
     # model = basic_baseline()
     # plot_model(model, to_file='model.png', show_shapes=True)
