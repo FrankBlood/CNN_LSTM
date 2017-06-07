@@ -246,46 +246,38 @@ def basic_attention(nb_words=10000, EMBEDDING_DIM=300, \
                     MAX_SEQUENCE_LENGTH=40, \
                     num_rnn=300, num_dense=300, rate_drop_rnn=0.25, \
                     rate_drop_dense=0.25, act='relu'):
-    embedding_layer = Embedding(nb_words,
-                                EMBEDDING_DIM,
-                                input_length=MAX_SEQUENCE_LENGTH)
+    embedding_layer = Embedding(nb_words, EMBEDDING_DIM, input_length=MAX_SEQUENCE_LENGTH)
     rnn_layer = Bidirectional(GRU(num_rnn, dropout=rate_drop_rnn, recurrent_dropout=rate_drop_rnn, return_sequences=True))
+    attention_W = TimeDistributed(Dense(350, activation='tanh'))
+    attention_w = TimeDistributed(Dense(1))
+    attention_softmax = Activation('softmax')
+    attention_sum = Lambda(lambda x: K.sum(x, axis=1))
 
     sequence_1_input = Input(shape=(MAX_SEQUENCE_LENGTH,), dtype='int32')
     embedded_sequences_1 = embedding_layer(sequence_1_input)
-    print(embedded_sequences_1.shape)
     x1 = rnn_layer(embedded_sequences_1)
-    print(x1.shape)
 
-    # attention1 = TimeDistributed(Dense(1, activation='tanh'))(x1)
-    attention1 = Dense(40, activation='tanh')(x1)
-    print(attention1.shape)
-    attention1 = Dense(40, activation='softmax')(attention1)
-    print(attention1.shape)
-    attention1 = multiply([x1, attention1])
-    print(attention1.shape)
-    x1 = Lambda(lambda x: K.sum(x, axis=1))(attention)
-    print(x1.shape)
-
-    # attention1 = Flatten()(attention1)
-    # attention1 = Activation('softmax')(attention1)
-    # attention1 = RepeatVector(num_rnn)(attention1)
-    # attention1 = Permute([2, 1])(attention1)
-    # attention1 = multiply([x1, attention1])
-    # x1 = Lambda(lambda xin: K.sum(xin, axis=1))(attention1)
+    attention1 = attention_W(x1)
+    attention1 = attention_w(attention1)
+    attention1 = attention_softmax(attention1)
+    x1 = Permute([2, 1])(x1)
+    x1 = multiply([attention1, x1])
+    x1 = Permute([2, 1])(x1)
+    x1 = attention_sum(x1)
 
     sequence_2_input = Input(shape=(MAX_SEQUENCE_LENGTH,), dtype='int32')
     embedded_sequences_2 = embedding_layer(sequence_2_input)
-    y1 = rnn_layer(embedded_sequences_2)
-    attention2 = TimeDistributed(Dense(1, activation='tanh'))(y1)
-    attention2 = Flatten()(attention2)
-    attention2 = Activation('softmax')(attention2)
-    attention2 = RepeatVector(num_rnn)(attention2)
-    attention2 = Permute([2, 1])(attention2)
-    attention2 = multiply([y1, attention2])
-    y1 = Lambda(lambda xin: K.sum(xin, axis=1))(attention2)
+    x2 = rnn_layer(embedded_sequences_2)
 
-    merged = multiply([x1, y1])
+    attention2 = attention_W(x2)
+    attention2 = attention_w(attention2)
+    attention2 = attention_softmax(attention2)
+    x2 = Permute([2, 1])(x2)
+    x2 = multiply([attention2, x2])
+    x2 = Permute([2, 1])(x2)
+    x2 = attention_sum(x2)
+
+    merged = multiply([x1, x2])
     merged = Dropout(rate_drop_dense)(merged)
     merged = BatchNormalization()(merged)
 
