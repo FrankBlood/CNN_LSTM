@@ -74,9 +74,9 @@ def cnn_rnn(nb_words=10000, EMBEDDING_DIM=300, \
     a1 = Lambda(lambda x: K.sum(x, axis=1))(a1)
     a2 = Lambda(lambda x: K.sum(x, axis=1))(a2)
 
-    a1 = Activation('softmax')(a1)
-    a2 = Activation('softmax')(a2)
-    
+    a1 = Activation('sigmoid')(a1)
+    a2 = Activation('sigmoid')(a2)
+
     embedded_sequences_1 = Permute([2, 1])(embedded_sequences_1)
     embedded_sequences_2 = Permute([2, 1])(embedded_sequences_2)
     

@@ -78,7 +78,7 @@ def cnn_rnn(nb_words, EMBEDDING_DIM, \
 
     a1 = Activation('sigmoid')(a1)
     a2 = Activation('sigmoid')(a2)
-    
+
     embedded_sequences_1 = Permute([2, 1])(embedded_sequences_1)
     embedded_sequences_2 = Permute([2, 1])(embedded_sequences_2)
     
