@@ -308,6 +308,7 @@ def basic_attention(nb_words=10000, EMBEDDING_DIM=300, \
 
 if __name__ == '__main__':
     model = cnn_rnn()
+    model = cnn_rnn_tmp()
     # model = basic_attention()
     # model = basic_baseline()
     # plot_model(model, to_file='model.png', show_shapes=True)
