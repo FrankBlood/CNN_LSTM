@@ -169,7 +169,7 @@ if __name__ == '__main__':
 
     hist = model.fit([data_1_train, data_2_train], labels_train, 
                      validation_data=([data_1_val, data_2_val], labels_val, weight_val), 
-                     epochs=200, batch_size=1, shuffle=True, 
+                     epochs=200, batch_size=512, shuffle=True, 
                      class_weight=class_weight, callbacks=[early_stopping, model_checkpoint])
 
     print(bst_model_path)

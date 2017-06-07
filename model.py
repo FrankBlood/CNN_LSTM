@@ -149,17 +149,25 @@ def cnn_rnn_tmp(nb_words, EMBEDDING_DIM, \
     # print cnn_2.shape
     # print embedded_sequences_1.shape
     # print embedded_sequences_2.shape
+    
+    cnn_1 = RepeatVector(MAX_SEQUENCE_LENGTH)(cnn_1)
+    cnn_2 = RepeatVector(MAX_SEQUENCE_LENGTH)(cnn_2)
 
-    x1 = TimeDistributed(Lambda(lambda x: dot([x, cnn_1], 1)))(embedded_sequences_1)
-    x1 = Activation('softmax')(x1)
-    x1 = multiply([x1, embedded_sequences_1])
+    # x1 = TimeDistributed(Lambda(lambda x: dot([x, cnn_1], 1)))(embedded_sequences_1)
+    # x1 = Activation('softmax')(x1)
+    # x1 = multiply([x1, embedded_sequences_1])
 
-    x2 = TimeDistributed(Lambda(lambda x: dot([x, cnn_2], 1)))(embedded_sequences_2)
-    x2 = Activation('softmax')(x2)
-    x2 = multiply([x2, embedded_sequences_2])
+    # x2 = TimeDistributed(Lambda(lambda x: dot([x, cnn_2], 1)))(embedded_sequences_2)
+    # x2 = Activation('softmax')(x2)
+    # x2 = multiply([x2, embedded_sequences_2])
+
+    a1 = dot([cnn_1, embedded_sequences_1], 1)
+    a2 = dot([cnn_2, embedded_sequences_2], 1)
+
+    x1 = multiply([a1, embedded_sequences_1])
+    x2 = multiply([a2, embedded_sequences_2])
 
     x1 = rnn_layer(x1)
-
     x2 = rnn_layer(x2)
 
     merged = multiply([x1, x2])
