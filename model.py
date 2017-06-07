@@ -64,8 +64,8 @@ def cnn_rnn(nb_words, EMBEDDING_DIM, \
     cnn_2 = cnn_dropout2(cnn_2)
     cnn_2 = cnn_batchnormalization(cnn_2)
     
-    cnn_1 = cnn_repeatvector(cnn_1)
-    cnn_2 = cnn_repeatvector(cnn_2)
+    # cnn_1 = cnn_repeatvector(cnn_1)
+    # cnn_2 = cnn_repeatvector(cnn_2)
 
     a1 = multiply([cnn_1, embedded_sequences_1])
     a2 = multiply([cnn_2, embedded_sequences_2])
