@@ -249,6 +249,7 @@ def basic_baseline(nb_words=10000, EMBEDDING_DIM=200, \
     model.summary()
     # print(STAMP)
     return model
+
 ########################################
 ## basic cnn
 ########################################
