@@ -19,6 +19,7 @@ import csv
 import codecs
 import numpy as np
 import pandas as pd
+import time
 
 from nltk.corpus import stopwords
 from nltk.stem import SnowballStemmer
@@ -129,30 +130,36 @@ if __name__ == '__main__':
                                num_rnn, num_dense, rate_drop_rnn, \
                                rate_drop_dense, act)
         model_name = 'basic_baseline'
+
     elif sys.argv[1] == '1':
         model = cnn_rnn(nb_words, EMBEDDING_DIM, \
                         embedding_matrix, MAX_SEQUENCE_LENGTH, \
                         num_rnn, num_dense, rate_drop_rnn, \
                         rate_drop_dense, act)
         model_name = 'cnn_rnn'
+
     elif sys.argv[1] == '2':
         model = basic_attention(nb_words, EMBEDDING_DIM, \
                                 embedding_matrix, MAX_SEQUENCE_LENGTH, \
                                 num_rnn, num_dense, rate_drop_rnn, \
                                 rate_drop_dense, act)
         model_name = 'basic_attention'
+
     elif sys.argv[1] == '3':
         model = cnn_rnn_tmp(nb_words, EMBEDDING_DIM, \
                             embedding_matrix, MAX_SEQUENCE_LENGTH, \
                             num_rnn, num_dense, rate_drop_rnn, \
                             rate_drop_dense, act)
         model_name = 'cnn_rnn_tmp'
+
     else:
         print("what the fuck!")
     
-    early_stopping =EarlyStopping(monitor='val_acc', patience=3)
-    # early_stopping =EarlyStopping(monitor='val_loss', patience=5)
-    bst_model_path = './models/' + model_name + STAMP + 'long.h5'
+    # early_stopping =EarlyStopping(monitor='val_acc', patience=3)
+    early_stopping =EarlyStopping(monitor='val_loss', patience=3)
+    now_time = '_'.join(time.asctime(time.localtime(time.time())).split(' '))
+    bst_model_path = './models/' + model_name + STAMP + '_' + now_time + '.h5'
+    print(bst_model_path)
     model_checkpoint = ModelCheckpoint(bst_model_path, save_best_only=True, save_weights_only=True)
 
     if os.path.exists(bst_model_path):
@@ -169,8 +176,8 @@ if __name__ == '__main__':
     hist = model.fit([data_1_train, data_2_train], labels_train, 
                      validation_data=([data_1_val, data_2_val], labels_val, weight_val), 
                      epochs=200, batch_size=512, shuffle=True, 
-                     class_weight=class_weight, callbacks=[model_checkpoint])
-                     # class_weight=class_weight, callbacks=[early_stopping, model_checkpoint])
+                     class_weight=class_weight, callbacks=[early_stopping, model_checkpoint])
+                     # class_weight=class_weight, callbacks=[model_checkpoint])
 
     print(bst_model_path)
     # model.load_weights(bst_model_path)
