@@ -140,12 +140,20 @@ def cnn_rnn_tmp(nb_words=10000, EMBEDDING_DIM=300, \
                                 trainable=False)
     rnn_layer = Bidirectional(GRU(num_rnn, dropout=rate_drop_rnn, recurrent_dropout=rate_drop_rnn))
     cnn_layer = Conv1D(activation="relu", padding="valid", strides=1, filters=32, kernel_size=4)
+    conv1 = Conv1D(filters=128, kernel_size=1, padding='same', activation='relu')
+    conv2 = Conv1D(filters=128, kernel_size=2, padding='same', activation='relu')
+    conv3 = Conv1D(filters=128, kernel_size=3, padding='same', activation='relu')
+    conv4 = Conv1D(filters=128, kernel_size=4, padding='same', activation='relu')
+    conv5 = Conv1D(filters=32, kernel_size=5, padding='same', activation='relu')
+    conv6 = Conv1D(filters=32, kernel_size=6, padding='same', activation='relu')
     pooling_layer = GlobalMaxPooling1D()
     cnn_dense = Dense(300)
     cnn_dropout1 = Dropout(0.2)
     cnn_dropout2 = Dropout(0.2)
     cnn_batchnormalization = BatchNormalization()
-    cnn_repeatvector = RepeatVector(MAX_SEQUENCE_LENGTH)
+    cnn_repeatvector = RepeatVector(EMBEDDING_DIM)
+    cnn_dense1 = Dense(300)
+    cnn_timedistributed = TimeDistributed(Dense(1))
 
     sequence_1_input = Input(shape=(MAX_SEQUENCE_LENGTH,), dtype='int32')
     embedded_sequences_1 = embedding_layer(sequence_1_input)
@@ -153,22 +161,62 @@ def cnn_rnn_tmp(nb_words=10000, EMBEDDING_DIM=300, \
     sequence_2_input = Input(shape=(MAX_SEQUENCE_LENGTH,), dtype='int32')
     embedded_sequences_2 = embedding_layer(sequence_2_input)
 
-    cnn_1 = cnn_layer(embedded_sequences_1)
-    cnn_1 = pooling_layer(cnn_1)
-    cnn_1 = cnn_dropout1(cnn_1)
-    cnn_1 = cnn_dense(cnn_1)
-    cnn_1 = cnn_dropout2(cnn_1)
-    cnn_1 = cnn_batchnormalization(cnn_1)
+    conv1a = conv1(embedded_sequences_1)
+    glob1a = GlobalAveragePooling1D()(conv1a)
+    conv1b = conv1(embedded_sequences_2)
+    glob1b = GlobalAveragePooling1D()(conv1b)
 
-    cnn_2 = cnn_layer(embedded_sequences_2)    
-    cnn_2 = pooling_layer(cnn_2)
-    cnn_2 = cnn_dropout1(cnn_2)
-    cnn_2 = cnn_dense(cnn_2)
-    cnn_2 = cnn_dropout2(cnn_2)
-    cnn_2 = cnn_batchnormalization(cnn_2)
-  
-    x1 = multiply([cnn_1, embedded_sequences_1])
-    x2 = multiply([cnn_2, embedded_sequences_2])
+    conv2a = conv2(embedded_sequences_1)
+    glob2a = GlobalAveragePooling1D()(conv2a)
+    conv2b = conv2(embedded_sequences_2)
+    glob2b = GlobalAveragePooling1D()(conv2b)
+
+    conv3a = conv3(embedded_sequences_1)
+    glob3a = GlobalAveragePooling1D()(conv3a)
+    conv3b = conv3(embedded_sequences_2)
+    glob3b = GlobalAveragePooling1D()(conv3b)
+
+    conv4a = conv4(embedded_sequences_1)
+    glob4a = GlobalAveragePooling1D()(conv4a)
+    conv4b = conv4(embedded_sequences_2)
+    glob4b = GlobalAveragePooling1D()(conv4b)
+
+    conv5a = conv5(embedded_sequences_1)
+    glob5a = GlobalAveragePooling1D()(conv5a)
+    conv5b = conv5(embedded_sequences_2)
+    glob5b = GlobalAveragePooling1D()(conv5b)
+
+    conv6a = conv6(embedded_sequences_1)
+    glob6a = GlobalAveragePooling1D()(conv6a)
+    conv6b = conv6(embedded_sequences_2)
+    glob6b = GlobalAveragePooling1D()(conv6b)
+
+    cnn_1 = concatenate([glob1a, glob2a, glob3a, glob4a, glob5a, glob6a])
+    cnn_2 = concatenate([glob1b, glob2b, glob3b, glob4b, glob5b, glob6b])
+
+    cnn_1_t = cnn_dense1(cnn_1)
+    cnn_2_t = cnn_dense1(cnn_2)
+
+    a1 = multiply([cnn_1_t, embedded_sequences_1])
+    a2 = multiply([cnn_2_t, embedded_sequences_2])
+    
+    a1 = Permute([2, 1])(a1)
+    a2 = Permute([2, 1])(a2)
+    
+    a1 = Lambda(lambda x: K.sum(x, axis=1))(a1)
+    a2 = Lambda(lambda x: K.sum(x, axis=1))(a2)
+
+    a1 = Activation('sigmoid')(a1)
+    a2 = Activation('sigmoid')(a2)
+
+    embedded_sequences_1 = Permute([2, 1])(embedded_sequences_1)
+    embedded_sequences_2 = Permute([2, 1])(embedded_sequences_2)
+    
+    x1 = multiply([a1, embedded_sequences_1])
+    x2 = multiply([a2, embedded_sequences_2])
+
+    x1 = Permute([2, 1])(x1)
+    x2 = Permute([2, 1])(x2)
 
     x1 = rnn_layer(x1)
     x2 = rnn_layer(x2)
@@ -182,12 +230,6 @@ def cnn_rnn_tmp(nb_words=10000, EMBEDDING_DIM=300, \
     merged = BatchNormalization()(merged)
 
     preds = Dense(1, activation='sigmoid')(merged)
-
-    # x1 = TimeDistributed(Dense(EMBEDDING_DIM, activation='relu'))(embedded_sequences_1)
-    # x1 = Lambda(lambda x: K.max(x, axis=1), output_shape=(EMBEDDING_DIM, ))(x1)
-
-    # y1 = TimeDistributed(Dense(EMBEDDING_DIM, activation='relu'))(embedded_sequences_2)
-    # y1 = Lambda(lambda x: K.max(x, axis=1), output_shape=(EMBEDDING_DIM, ))(y1)
 
     ########################################
     ## train the model
