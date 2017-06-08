@@ -124,7 +124,6 @@ if __name__ == '__main__':
     ########################################
 
     if sys.argv[1] == '0':
-    
         model = basic_baseline(nb_words, EMBEDDING_DIM, \
                                embedding_matrix, MAX_SEQUENCE_LENGTH, \
                                num_rnn, num_dense, rate_drop_rnn, \
@@ -132,18 +131,18 @@ if __name__ == '__main__':
         model_name = 'basic_baseline'
 
     elif sys.argv[1] == '1':
-        model = cnn_rnn(nb_words, EMBEDDING_DIM, \
-                        embedding_matrix, MAX_SEQUENCE_LENGTH, \
-                        num_rnn, num_dense, rate_drop_rnn, \
-                        rate_drop_dense, act)
-        model_name = 'cnn_rnn'
-
-    elif sys.argv[1] == '2':
         model = basic_attention(nb_words, EMBEDDING_DIM, \
                                 embedding_matrix, MAX_SEQUENCE_LENGTH, \
                                 num_rnn, num_dense, rate_drop_rnn, \
                                 rate_drop_dense, act)
         model_name = 'basic_attention'
+    
+    elif sys.argv[1] == '2':
+        model = cnn_rnn(nb_words, EMBEDDING_DIM, \
+                        embedding_matrix, MAX_SEQUENCE_LENGTH, \
+                        num_rnn, num_dense, rate_drop_rnn, \
+                        rate_drop_dense, act)
+        model_name = 'cnn_rnn'
 
     elif sys.argv[1] == '3':
         model = cnn_rnn_tmp(nb_words, EMBEDDING_DIM, \
