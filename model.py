@@ -37,14 +37,13 @@ def cnn_rnn(nb_words, EMBEDDING_DIM, \
                                 trainable=False)
     rnn_layer = Bidirectional(GRU(num_rnn, dropout=rate_drop_rnn, recurrent_dropout=rate_drop_rnn))
     cnn_layer = Conv1D(activation="relu", padding="valid", strides=1, filters=32, kernel_size=4)
-    cnn_layer1 = Conv1D(activation="relu", padding="valid", strides=1, filters=32, kernel_size=4)
     pooling_layer = GlobalMaxPooling1D()
     cnn_dense = Dense(300)
     cnn_dropout1 = Dropout(0.2)
     cnn_dropout2 = Dropout(0.2)
     cnn_batchnormalization = BatchNormalization()
     cnn_repeatvector = RepeatVector(EMBEDDING_DIM)
-    cnn_dense_2 = Dense(EMBEDDING_DIM)
+    cnn_dense1 = Dense(300)
     cnn_timedistributed = TimeDistributed(Dense(1))
 
     sequence_1_input = Input(shape=(MAX_SEQUENCE_LENGTH,), dtype='int32')
@@ -54,15 +53,13 @@ def cnn_rnn(nb_words, EMBEDDING_DIM, \
     embedded_sequences_2 = embedding_layer(sequence_2_input)
 
     cnn_1 = cnn_layer(embedded_sequences_1)
-    cnn_1 = cnn_layer1(cnn_1)
     cnn_1 = pooling_layer(cnn_1)
     cnn_1 = cnn_dropout1(cnn_1)
     cnn_1 = cnn_dense(cnn_1)
     cnn_1 = cnn_dropout2(cnn_1)
     cnn_1 = cnn_batchnormalization(cnn_1)
 
-    cnn_2 = cnn_layer(embedded_sequences_2)
-    cnn_2 = cnn_layer1(cnn_2)
+    cnn_2 = cnn_layer(embedded_sequences_2)    
     cnn_2 = pooling_layer(cnn_2)
     cnn_2 = cnn_dropout1(cnn_2)
     cnn_2 = cnn_dense(cnn_2)
@@ -72,14 +69,14 @@ def cnn_rnn(nb_words, EMBEDDING_DIM, \
     # cnn_1 = cnn_repeatvector(cnn_1)
     # cnn_2 = cnn_repeatvector(cnn_2)
 
-    cnn_1_t = cnn_dense_2(cnn_1) 
-    cnn_2_t = cnn_dense_2(cnn_2)
+    cnn_1_t = cnn_dense1(cnn_1)
+    cnn_2_t = cnn_dense1(cnn_2)
 
     # cnn_1_t = cnn_timedistributed(cnn_1)
     # cnn_2_t = cnn_timedistributed(cnn_2)
 
-    cnn_1_t = Permute([2, 1])(cnn_1_t)
-    cnn_2_t = Permute([2, 1])(cnn_2_t)
+    # cnn_1_t = Permute([2, 1])(cnn_1_t)
+    # cnn_2_t = Permute([2, 1])(cnn_2_t)
 
     a1 = multiply([cnn_1_t, embedded_sequences_1])
     a2 = multiply([cnn_2_t, embedded_sequences_2])

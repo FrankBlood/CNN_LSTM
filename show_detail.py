@@ -42,7 +42,7 @@ def cnn_rnn(nb_words=10000, EMBEDDING_DIM=300, \
     cnn_batchnormalization = BatchNormalization()
     cnn_repeatvector = RepeatVector(EMBEDDING_DIM)
     cnn_dense1 = Dense(300)
-    # cnn_timedistributed = TimeDistributed(Dense(1))
+    cnn_timedistributed = TimeDistributed(Dense(1))
 
     sequence_1_input = Input(shape=(MAX_SEQUENCE_LENGTH,), dtype='int32')
     embedded_sequences_1 = embedding_layer(sequence_1_input)
