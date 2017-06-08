@@ -9,7 +9,7 @@ The code is tested on Keras 2.0.0 using Tensorflow backend, and Python 2.7
 ########################################
 from keras.models import Model
 from keras.models import Sequential
-from keras.layers import Dense, Embedding, LSTM, GRU, Conv1D, Conv2D, GlobalMaxPooling1D
+from keras.layers import Dense, Embedding, LSTM, GRU, Conv1D, Conv2D, GlobalMaxPooling1D, GlobalAveragePooling1D
 from keras.layers import Dropout, Input, Activation, Flatten
 from keras.layers import TimeDistributed, RepeatVector, Permute, Lambda, Bidirectional, Merge
 from keras.layers.merge import concatenate, add, dot, multiply
