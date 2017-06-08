@@ -44,6 +44,7 @@ def cnn_rnn(nb_words, EMBEDDING_DIM, \
     cnn_dropout2 = Dropout(0.2)
     cnn_batchnormalization = BatchNormalization()
     cnn_repeatvector = RepeatVector(EMBEDDING_DIM)
+    cnn_dense_2 = Dense(EMBEDDING_DIM)
     cnn_timedistributed = TimeDistributed(Dense(1))
 
     sequence_1_input = Input(shape=(MAX_SEQUENCE_LENGTH,), dtype='int32')
@@ -68,11 +69,14 @@ def cnn_rnn(nb_words, EMBEDDING_DIM, \
     cnn_2 = cnn_dropout2(cnn_2)
     cnn_2 = cnn_batchnormalization(cnn_2)
     
-    cnn_1 = cnn_repeatvector(cnn_1)
-    cnn_2 = cnn_repeatvector(cnn_2)
+    # cnn_1 = cnn_repeatvector(cnn_1)
+    # cnn_2 = cnn_repeatvector(cnn_2)
 
-    cnn_1_t = cnn_timedistributed(cnn_1)
-    cnn_2_t = cnn_timedistributed(cnn_2)
+    cnn_1_t = cnn_dense_2(cnn_1) 
+    cnn_2_t = cnn_dense_2(cnn_2)
+
+    # cnn_1_t = cnn_timedistributed(cnn_1)
+    # cnn_2_t = cnn_timedistributed(cnn_2)
 
     cnn_1_t = Permute([2, 1])(cnn_1_t)
     cnn_2_t = Permute([2, 1])(cnn_2_t)
