@@ -40,8 +40,9 @@ BASE_DIR = '/home/hegx/Research/Quora_Question_Pairs/data/'
 
 # EMBEDDING_FILE = BASE_DIR + 'vectors_5.bin'
 # EMBEDDING_FILE = BASE_DIR + 'vectors_300_8_.bin'
-# EMBEDDING_FILE = BASE_DIR + 'vectors.bin'
-EMBEDDING_FILE = BASE_DIR + 'gensim_vector_window8.bin'
+EMBEDDING_FILE = BASE_DIR + 'vectors.bin'
+# EMBEDDING_FILE = BASE_DIR + 'glove.840B.300d.txt'
+# EMBEDDING_FILE = BASE_DIR + 'gensim_vector_window8.bin'
 # EMBEDDING_FILE = BASE_DIR + 'GoogleNews-vectors-negative300.bin'
 
 TRAIN_DATA_FILE = BASE_DIR + 'train_lower_stemmer.csv'
@@ -49,7 +50,7 @@ TEST_DATA_FILE = BASE_DIR + 'test_lower_stemmer.csv'
 # TRAIN_DATA_FILE = BASE_DIR + 'train.csv'
 # TEST_DATA_FILE = BASE_DIR + 'test.csv'
 
-MAX_SEQUENCE_LENGTH = 40
+MAX_SEQUENCE_LENGTH = 30
 MAX_NB_WORDS = 200000
 # EMBEDDING_DIM = 128
 EMBEDDING_DIM = 300
@@ -74,7 +75,9 @@ STAMP = '_%d_%d_%.2f_%.2f'%(num_rnn, num_dense, rate_drop_rnn, rate_drop_dense)
 ########################################
 print('Indexing word vectors')
 # word2vec = gensim.models.KeyedVectors.load_word2vec_format(EMBEDDING_FILE, binary=True)
+# word2vec = KeyedVectors.load_word2vec_format(EMBEDDING_FILE, binary=False)
 word2vec = KeyedVectors.load_word2vec_format(EMBEDDING_FILE, binary=True)
+# print(len(word2vec['a']))
 print('Found %s word vectors of word2vec' % len(word2vec.vocab))
 
 ########################################
