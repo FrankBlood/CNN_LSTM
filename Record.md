@@ -1,9 +1,30 @@
 # Record
 
 ## CNN\_RNN
-1. log as cnn\_rnn\_1, the detail of model as summary shows.
-2. basic baseline as basic\_baseline
-3. basic attention as basic\_attention
+1. ./log/cnn\_rnn first completed try about cnn based attention rnn
+   The config's details:
+   1. Embedding file: vectors.bin
+   2. Embedding dim: 300
+   3. Max Sequence Length: 30
+   4. Validation split: 0.1
+   5. num rnn: 256
+   6. num dense: 200
+   7. rate drop rnn: 0.25
+   8. rate drop dense: 0.25
+   9. act: relu
+   The model's details:
+   1. input layer
+   * embedding layer
+   * Simple CNN layer
+   * attention layer to embedding layer
+   * BiGRU layer
+   * multiply
+   * Dropout
+   * BatchNormalization
+   * Dense
+   * Dropout
+   * BatchNormalization
+   * Dense(sigmoid)
 
 ## basic\_baseline
 1. ./log/basic\_baseline contains the first try about it
