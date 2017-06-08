@@ -4,14 +4,14 @@
 1. ./log/cnn\_rnn first completed try about cnn based attention rnn
    The config's details:
    1. Embedding file: vectors.bin
-   2. Embedding dim: 300
-   3. Max Sequence Length: 30
-   4. Validation split: 0.1
-   5. num rnn: 256
-   6. num dense: 200
-   7. rate drop rnn: 0.25
-   8. rate drop dense: 0.25
-   9. act: relu
+   * Embedding dim: 300
+   * Max Sequence Length: 30
+   * Validation split: 0.1
+   * num rnn: 256
+   * num dense: 200
+   * rate drop rnn: 0.25
+   * rate drop dense: 0.25
+   * act: relu
    The model's details:
    1. input layer
    * embedding layer
@@ -28,25 +28,57 @@
 
 ## basic\_baseline
 1. ./log/basic\_baseline contains the first try about it
-2. ./log/basic\_baseline\_1: I try to re\_show the best score I get on kaggle. 
+* ./log/basic\_baseline\_1: I try to re\_show the best score I get on kaggle. 
    The config's details:
    1. Embedding file: vectors.bin
-   2. Embedding dim: 300
-   3. Max Sequence Length: 30
-   4. Validation split: 0.1
-   5. num rnn: 256
-   6. num dense: 200
-   7. rate drop rnn: 0.25
-   8. rate drop dense: 0.25
-   9. act: relu
+   * Embedding dim: 300
+   * Max Sequence Length: 30
+   * Validation split: 0.1
+   * num rnn: 256
+   * num dense: 200
+   * rate drop rnn: 0.25
+   * rate drop dense: 0.25
+   * act: relu
    The model's details:
    1. input layer
-   2. embedding layer
-   3. BiGRU layer
-   4. multiply
-   5. Dropout
-   6. BatchNormalization
-   7. Dense
-   8. Dropout
-   9. BatchNormalization
-   10. Dense(sigmoid)
+   * embedding layer
+   * BiGRU layer
+   * multiply
+   * Dropout
+   * BatchNormalization
+   * Dense
+   * Dropout
+   * BatchNormalization
+   * Dense(sigmoid)
+
+## basic\_cnn
+1. ./log/basic\_cnn: I try the kaggle cnn model
+   The config's details:
+   1. Embedding file: vectors.bin
+   * Embedding dim: 300
+   * Max Sequence Length: 30
+   * Validation split: 0.1
+   * num rnn: 256
+   * num dense: 200
+   * rate drop rnn: 0.25
+   * rate drop dense: 0.2
+   * act: relu
+   The model's details:
+   1. input layer
+   * embedding layer
+   * cnn layer: filters128, kernel\_size1, act relu
+   * cnn layer: filters128, kernel\_size2, act relu
+   * cnn layer: filters128, kernel\_size3, act relu
+   * cnn layer: filters128, kernel\_size4, act relu
+   * cnn layer: filters32, kernel\_size5, act relu
+   * cnn layer: filters32, kernel\_size6, act relu
+   * concatenate
+   * diff
+   * mul
+   * concatenate
+   * Dropout
+   * BatchNormalization
+   * Dense
+   * Dropout
+   * BatchNormalization
+   * Dense(sigmoid)
