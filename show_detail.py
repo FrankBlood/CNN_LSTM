@@ -316,4 +316,6 @@ if __name__ == '__main__':
     # model = cnn_rnn_tmp()
     # model = basic_attention()
     # model = basic_baseline()
+    for layer in model.layers:
+        print layer
     # plot_model(model, to_file='model.png', show_shapes=True)
