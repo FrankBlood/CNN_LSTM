@@ -9,7 +9,7 @@ The code is tested on Keras 2.0.0 using Tensorflow backend, and Python 2.7
 ########################################
 from keras.models import Model
 from keras.models import Sequential
-from keras.layers import Dense, Embedding, LSTM, GRU, Conv1D, Conv2D, GlobalMaxPooling1D, ConvLSTM2D
+from keras.layers import Dense, Embedding, LSTM, GRU, Conv1D, Conv2D, GlobalMaxPooling1D, GlobalAveragePooling1D, ConvLSTM2D
 from keras.layers import Dropout, Input, Bidirectional, Merge, RepeatVector, Activation, TimeDistributed, Flatten, RepeatVector, Permute, Lambda
 from keras.layers.merge import concatenate, add, dot, multiply
 from keras.optimizers import RMSprop, Adam, SGD, Adagrad, Adadelta, Adamax, Nadam
@@ -249,6 +249,86 @@ def basic_baseline(nb_words=10000, EMBEDDING_DIM=200, \
     model.summary()
     # print(STAMP)
     return model
+########################################
+## basic cnn
+########################################
+def basic_cnn(nb_words=10000, EMBEDDING_DIM=300, \
+              MAX_SEQUENCE_LENGTH=40, \
+              num_rnn=300, num_dense=300, rate_drop_rnn=0.25, \
+              rate_drop_dense=0.25, act='relu'):
+    embedding_layer = Embedding(nb_words, EMBEDDING_DIM, input_length=MAX_SEQUENCE_LENGTH)
+    conv1 = Conv1D(filters=128, kernel_size=1, padding='same', activation='relu')
+    conv2 = Conv1D(filters=128, kernel_size=2, padding='same', activation='relu')
+    conv3 = Conv1D(filters=128, kernel_size=3, padding='same', activation='relu')
+    conv4 = Conv1D(filters=128, kernel_size=4, padding='same', activation='relu')
+    conv5 = Conv1D(filters=32, kernel_size=5, padding='same', activation='relu')
+    conv6 = Conv1D(filters=32, kernel_size=6, padding='same', activation='relu')
+
+    sequence_1_input = Input(shape=(MAX_SEQUENCE_LENGTH,), dtype='int32')
+    embedded_sequences_1 = embedding_layer(sequence_1_input)
+
+    sequence_2_input = Input(shape=(MAX_SEQUENCE_LENGTH,), dtype='int32')
+    embedded_sequences_2 = embedding_layer(sequence_2_input)
+
+    conv1a = conv1(embedded_sequences_1)
+    glob1a = GlobalAveragePooling1D()(conv1a)
+    conv1b = conv1(embedded_sequences_2)
+    glob1b = GlobalAveragePooling1D()(conv1b)
+
+    conv2a = conv2(embedded_sequences_1)
+    glob2a = GlobalAveragePooling1D()(conv2a)
+    conv2b = conv2(embedded_sequences_2)
+    glob2b = GlobalAveragePooling1D()(conv2b)
+
+    conv3a = conv3(embedded_sequences_1)
+    glob3a = GlobalAveragePooling1D()(conv3a)
+    conv3b = conv3(embedded_sequences_2)
+    glob3b = GlobalAveragePooling1D()(conv3b)
+
+    conv4a = conv4(embedded_sequences_1)
+    glob4a = GlobalAveragePooling1D()(conv4a)
+    conv4b = conv4(embedded_sequences_2)
+    glob4b = GlobalAveragePooling1D()(conv4b)
+
+    conv5a = conv5(embedded_sequences_1)
+    glob5a = GlobalAveragePooling1D()(conv5a)
+    conv5b = conv5(embedded_sequences_2)
+    glob5b = GlobalAveragePooling1D()(conv5b)
+
+    conv6a = conv6(embedded_sequences_1)
+    glob6a = GlobalAveragePooling1D()(conv6a)
+    conv6b = conv6(embedded_sequences_2)
+    glob6b = GlobalAveragePooling1D()(conv6b)
+
+    mergea = concatenate([glob1a, glob2a, glob3a, glob4a, glob5a, glob6a])
+    mergeb = concatenate([glob1b, glob2b, glob3b, glob4b, glob5b, glob6b])
+
+    # We take the explicit absolute difference between the two sentences
+    # Furthermore we take the multiply different entries to get a different measure of equalness
+    diff = Lambda(lambda x: K.abs(x[0] - x[1]), output_shape=(4 * 128 + 2*32,))([mergea, mergeb])
+    mul = Lambda(lambda x: x[0] * x[1], output_shape=(4 * 128 + 2*32,))([mergea, mergeb])
+    
+    merge = concatenate([diff, mul])
+
+    # The MLP that determines the outcome
+    x = Dropout(0.2)(merge)
+    x = BatchNormalization()(x)
+    x = Dense(300, activation='relu')(x)
+
+    x = Dropout(0.2)(x)
+    x = BatchNormalization()(x)
+    preds = Dense(1, activation='sigmoid')(x)
+
+    ########################################
+    ## train the model
+    ########################################
+    model = Model(inputs=[sequence_1_input, sequence_2_input], outputs=preds)
+    model.compile(loss='binary_crossentropy',
+              optimizer='nadam',
+              metrics=['acc'])
+    model.summary()
+    # print(STAMP)
+    return model
 
 ########################################
 ## basic attention
@@ -312,10 +392,11 @@ def basic_attention(nb_words=10000, EMBEDDING_DIM=300, \
     return model
 
 if __name__ == '__main__':
-    model = cnn_rnn()
+    # model = cnn_rnn()
     # model = cnn_rnn_tmp()
     # model = basic_attention()
     # model = basic_baseline()
+    model = basic_cnn()
     for layer in model.layers:
         print layer
     # plot_model(model, to_file='model.png', show_shapes=True)
