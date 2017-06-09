@@ -124,10 +124,10 @@ if __name__ == '__main__':
     # data_2_val = np.vstack((data_2[idx_val], data_1[idx_val]))
     # labels_val = np.concatenate((labels[idx_val], labels[idx_val]))
 
-    weight_val = np.ones(len(labels_val))
+    weight_val = np.ones(len(labels_dev))
     if re_weight:
         weight_val *= 0.472001959
-        weight_val[labels_val==0] = 1.309028344
+        weight_val[labels_dev==0] = 1.309028344
 
     ########################################
     ## define the model structure

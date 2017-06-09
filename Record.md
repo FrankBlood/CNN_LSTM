@@ -63,7 +63,7 @@
    11. BatchNormalization
    12. Dense(sigmoid)
 
-3. ./log/cnn\_rnn\_1: same as the first on but set 0.1 for dev and 0.1 for test
+3. ./log/cnn\_rnn\_1: same as the first one but set 0.1 for dev and 0.1 for test
    The config's details:
    1. Embedding file: vectors.bin
    2. Embedding dim: 300
@@ -79,6 +79,32 @@
    1. input layer
    2. embedding layer
    3. Simple CNN layer
+   4. attention layer to embedding layer
+   5. BiGRU layer
+   6. multiply
+   7. Dropout
+   8. BatchNormalization
+   9. Dense
+   10. Dropout
+   11. BatchNormalization
+   12. Dense(sigmoid)
+
+4. ./log/cnn\_rnn\_tmp\_2: same as the second one but set 0.1 for dev and 0.1 for test
+   The config's details:
+   1. Embedding file: vectors.bin
+   2. Embedding dim: 300
+   3. Max Sequence Length: 30
+   4. Validation split: 0.1
+   5. num rnn: 256
+   6. num dense: 200
+   7. rate drop rnn: 0.25
+   8. rate drop dense: 0.25
+   9. act: relu
+   10. 0.1 dev and 0.1 test
+   The model's details:
+   1. input layer
+   2. embedding layer
+   3. Complex CNN layer
    4. attention layer to embedding layer
    5. BiGRU layer
    6. multiply
