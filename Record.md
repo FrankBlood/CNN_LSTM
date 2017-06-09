@@ -1,3 +1,12 @@
+# Summary
+| Model\_Log | Epoch | Accuracy |
+| -----------|:-----:| --------:|
+| cnn\_rnn | 5 | 0.83 |
+| cnn\_rnn\_tmp | 5 | $12 |
+| basic\_baseline | are neat | 0.84|
+| basic\_attention | are neat | 0.84|
+| basic\_cnn | are neat | 0.84|
+
 # Record
 
 ## CNN\_RNN
