@@ -54,7 +54,7 @@ MAX_SEQUENCE_LENGTH = 30
 MAX_NB_WORDS = 200000
 # EMBEDDING_DIM = 128
 EMBEDDING_DIM = 300
-VALIDATION_SPLIT = 0.1
+VALIDATION_SPLIT = 0.2
 
 num_rnn = np.random.randint(175, 275)
 num_dense = np.random.randint(100, 150)
