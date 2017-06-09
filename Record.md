@@ -10,6 +10,7 @@
 | cnn\_rnn | 9 | 0.2241 | 0.8415 | 0.2859 | 0.8532 | Nan | Nan | cnn_rnn_256_200_0.25_0.25_Thu_Jun__8_09:38:51_2017.h5 |
 | cnn\_rnn\_1 | 12 | 0.2148 | 0.8489 | 0.3009 | 0.8498 | 0.33263399748324629 | 0.85055282065279192 | cnn_rnn_256_200_0.25_0.25_Fri_Jun__9_06:17:01_2017.h5|
 | cnn\_rnn\_tmp | 6 | 0.1408 | 0.9125 | 0.3441 | 0.8341 | Nan | Nan | cnn_rnn_tmp_256_200_0.25_0.25_Thu_Jun__8_11:14:25_2017.h5 |
+| cnn\_rnn\_tmp\_1 | 8 | 0.1069 | 0.9369 | 0.4617 | 0.8331 | 0.54260279737386574 | 0.83712186794247512 | cnn_rnn_tmp_256_200_0.25_0.25_Fri_Jun__9_08:36:03_2017.h5 |
 
 # Record
 
@@ -38,6 +39,7 @@
    10. Dropout
    11. BatchNormalization
    12. Dense(sigmoid)
+
 2. ./log/cnn\_rnn\_tmp: second completed about another cnn based attention rnn
    The config's details:
    1. Embedding file: vectors.bin
@@ -89,7 +91,7 @@
    11. BatchNormalization
    12. Dense(sigmoid)
 
-4. ./log/cnn\_rnn\_tmp\_2: same as the second one but set 0.1 for dev and 0.1 for test
+4. ./log/cnn\_rnn\_tmp\_1: same as the second one but set 0.1 for dev and 0.1 for test
    The config's details:
    1. Embedding file: vectors.bin
    2. Embedding dim: 300
@@ -139,6 +141,29 @@
    8. Dropout
    9. BatchNormalization
    10. Dense(sigmoid)
+3. ./log/basic\_baseline\_2: same as the second one but use dev 0.1 and test 0.1
+   The config's details:
+   1. Embedding file: vectors.bin
+   2. Embedding dim: 300
+   3. Max Sequence Length: 30
+   4. Validation split: 0.1
+   5. num rnn: 256
+   6. num dense: 200
+   7. rate drop rnn: 0.25
+   8. rate drop dense: 0.25
+   9. act: relu
+   10. dev 0.1 and test 0.1
+   The model's details:
+   1. input layer
+   2. embedding layer
+   3. BiGRU layer
+   4. multiply
+   5. Dropout
+   6. BatchNormalization
+   7. Dense
+   8. Dropout
+   9. BatchNormalization
+   10. Dense(sigmoid)
 
 ## basic\_attention
 1. ./log/basic\_attention contains the first try about it
@@ -165,7 +190,7 @@
    9. Dropout
    10. BatchNormalization
    11. Dense(sigmoid)
-3. ./log/basic\_attention\_2: I try to re\_show the same config of my best score I got on kaggle.
+3. ./log/basic\_attention\_2: same as the second one but use dev 0.1 and test 0.1
    The config's details:
    1. Embedding file: vectors.bin
    2. Embedding dim: 300
