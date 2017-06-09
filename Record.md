@@ -1,11 +1,13 @@
 # Summary
-| Model\_Log | Epoch | Accuracy |
-| -----------|:-----:| --------:|
-| cnn\_rnn | 5 | 0.83 |
-| cnn\_rnn\_tmp | 5 | $12 |
-| basic\_baseline | are neat | 0.84|
-| basic\_attention | are neat | 0.84|
-| basic\_cnn | are neat | 0.84|
+| Model\_Log | Epoch | Train Loss | Train Acc | Dev Loss | Dev Acc | Test Loss | Dev Acc | Model Weight |
+| :----------|:-----:| :---------:| :-------: | :------: | :-----: | :-------: | :-----: | :----------: |
+| basic\_baseline | 6 | 0.2937 | 0.7740 | 0.3497 | 0.8225 | Nan | Nan | basic_baseline_256_200_0.25_0.25.h5 |
+| basic\_baseline\_1 | 8 | 0.2279 | 0.8357 | 0.2803 | 0.8546 | Nan | Nan | basic_baseline_256_200_0.25_0.25_Thu_Jun__8_08:57:23_2017.h5 |
+| basic\_attention | 5 | 0.2729 | 0.7827 | 0.2904 | 0.8303 | Nan | Nan | basic_attention_256_200_0.25_0.25.h5 |
+| basic\_attention\_1 | 8 | 0.2270 | 0.8349 | 0.2889 | 0.8552 | Nan | Nan | basic_attention_256_200_0.25_0.25_Thu_Jun__8_11:14:25_2017.h5 |
+| basic\_cnn | 4 | 0.1504 | 0.9032 | 0.2585 | 0.8636 | Nan | Nan | basic_cnn_256_200_0.25_0.25_Thu_Jun__8_10:26:04_2017.h5 |
+| cnn\_rnn | 9 | 0.2241 | 0.8415 | 0.2859 | 0.8532 | Nan | Nan | cnn_rnn_256_200_0.25_0.25_Thu_Jun__8_09:38:51_2017.h5 |
+| cnn\_rnn\_tmp | 6 | 0.1408 | 0.9125 | 0.3441 | 0.8341 | Nan | Nan | cnn_rnn_tmp_256_200_0.25_0.25_Thu_Jun__8_11:14:25_2017.h5 |
 
 # Record
 
