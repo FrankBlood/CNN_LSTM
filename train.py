@@ -101,18 +101,28 @@ if __name__ == '__main__':
     ########################################
     ## sample train/validation data
     ########################################
-    #np.random.seed(1234)
+    np.random.seed(1234)
     perm = np.random.permutation(len(data_1))
     idx_train = perm[:int(len(data_1)*(1-VALIDATION_SPLIT))]
-    idx_val = perm[int(len(data_1)*(1-VALIDATION_SPLIT)):]
+    idx_dev = perm[int(len(data_1)*(1-VALIDATION_SPLIT)):int(len(data_1)*(1-VALIDATION_SPLIT/2))]
+    idx_test = perm[int(len(data_1)*(1-VALIDATION_SPLIT/2)):]
+    # idx_val = perm[int(len(data_1)*(1-VALIDATION_SPLIT)):]
 
     data_1_train = np.vstack((data_1[idx_train], data_2[idx_train]))
     data_2_train = np.vstack((data_2[idx_train], data_1[idx_train]))
     labels_train = np.concatenate((labels[idx_train], labels[idx_train]))
 
-    data_1_val = np.vstack((data_1[idx_val], data_2[idx_val]))
-    data_2_val = np.vstack((data_2[idx_val], data_1[idx_val]))
-    labels_val = np.concatenate((labels[idx_val], labels[idx_val]))
+    data_1_dev = np.vstack((data_1[idx_dev], data_2[idx_dev]))
+    data_2_dev = np.vstack((data_2[idx_dev], data_1[idx_dev]))
+    labels_dev = np.concatenate((labels[idx_dev], labels[idx_dev]))
+    
+    data_1_test = np.vstack((data_1[idx_test], data_2[idx_test]))
+    data_2_test = np.vstack((data_2[idx_test], data_1[idx_test]))
+    labels_test = np.concatenate((labels[idx_test], labels[idx_test]))
+    
+    # data_1_val = np.vstack((data_1[idx_val], data_2[idx_val]))
+    # data_2_val = np.vstack((data_2[idx_val], data_1[idx_val]))
+    # labels_val = np.concatenate((labels[idx_val], labels[idx_val]))
 
     weight_val = np.ones(len(labels_val))
     if re_weight:
@@ -180,10 +190,11 @@ if __name__ == '__main__':
         class_weight = None
 
     hist = model.fit([data_1_train, data_2_train], labels_train, 
-                     validation_data=([data_1_val, data_2_val], labels_val, weight_val), 
+                     validation_data=([data_1_dev, data_2_dev], labels_dev, weight_val), 
                      epochs=200, batch_size=512, shuffle=True, 
                      class_weight=class_weight, callbacks=[early_stopping, model_checkpoint])
                      # class_weight=class_weight, callbacks=[model_checkpoint])
 
     print(bst_model_path)
+    print(model.evaluate([data_1_test, data_2_test], labels_test, batch_size=512))
     # model.load_weights(bst_model_path)
