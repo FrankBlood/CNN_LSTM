@@ -1,5 +1,6 @@
 # CNN_LSTM
-add CNN as an attention to LSTM
+* add CNN as an attention to LSTM
+* Experiment details are shown in Record.md
 
 ## Task
 Deep Semantic Matching
