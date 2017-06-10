@@ -118,6 +118,32 @@
    11. BatchNormalization
    12. Dense(sigmoid)
 
+4. ./log/cnn\_rnn\_tmp\_1: same as the third one but add dropout and normalization to every cnn layer
+   The config's details:
+   1. Embedding file: vectors.bin
+   2. Embedding dim: 300
+   3. Max Sequence Length: 30
+   4. Validation split: 0.1
+   5. num rnn: 256
+   6. num dense: 200
+   7. rate drop rnn: 0.25
+   8. rate drop dense: 0.25
+   9. act: relu
+   10. 0.1 dev and 0.1 test
+   The model's details:
+   1. input layer
+   2. embedding layer
+   3. Complex CNN layer(add dropout and normalization to every layers)
+   4. attention layer to embedding layer
+   5. BiGRU layer
+   6. multiply
+   7. Dropout
+   8. BatchNormalization
+   9. Dense
+   10. Dropout
+   11. BatchNormalization
+   12. Dense(sigmoid)
+
 ## basic\_baseline
 1. ./log/basic\_baseline contains the first try about it
 2. ./log/basic\_baseline\_1: I try to re\_show the best score I get on kaggle. 

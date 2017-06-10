@@ -30,6 +30,11 @@ def cnn_rnn(nb_words, EMBEDDING_DIM, \
             embedding_matrix, MAX_SEQUENCE_LENGTH, \
             num_rnn, num_dense, rate_drop_rnn, \
             rate_drop_dense, act):
+    '''
+    This is the basic cnn rnn model 
+
+    model: input layer; embedding layer; cnn based attention layer; rnn layer; dense layer; output layer
+    '''
     embedding_layer = Embedding(nb_words,
                                 EMBEDDING_DIM,
                                 weights=[embedding_matrix],
@@ -136,6 +141,11 @@ def cnn_rnn_tmp(nb_words, EMBEDDING_DIM, \
                embedding_matrix, MAX_SEQUENCE_LENGTH, \
                num_rnn, num_dense, rate_drop_rnn, \
                rate_drop_dense, act):
+    '''
+    This is the more complex cnn rnn model 
+
+    model: input layer; embedding layer; more complex cnn based attention layer; rnn layer; dense layer; output layer
+    '''
     embedding_layer = Embedding(nb_words,
                                 EMBEDDING_DIM,
                                 weights=[embedding_matrix],
@@ -167,56 +177,56 @@ def cnn_rnn_tmp(nb_words, EMBEDDING_DIM, \
     conv1a = conv1(embedded_sequences_1)
     glob1a = GlobalAveragePooling1D()(conv1a)
     glob1a = Dropout(0.2)(glob1a)
-    glob1a = BatchNormalization(glob1a)
+    glob1a = BatchNormalization()(glob1a)
     conv1b = conv1(embedded_sequences_2)
     glob1b = GlobalAveragePooling1D()(conv1b)
     glob1b = Dropout(0.2)(glob1b)
-    glob1b = BatchNormalization(glob1b)
+    glob1b = BatchNormalization()(glob1b)
 
     conv2a = conv2(embedded_sequences_1)
     glob2a = GlobalAveragePooling1D()(conv2a)
     glob2a = Dropout(0.2)(glob2a)
-    glob2a = BatchNormalization(glob2a)
+    glob2a = BatchNormalization()(glob2a)
     conv2b = conv2(embedded_sequences_2)
     glob2b = GlobalAveragePooling1D()(conv2b)
     glob2b = Dropout(0.2)(glob2b)
-    glob2b = BatchNormalization(glob2b)
+    glob2b = BatchNormalization()(glob2b)
 
     conv3a = conv3(embedded_sequences_1)
     glob3a = GlobalAveragePooling1D()(conv3a)
     glob3a = Dropout(0.2)(glob3a)
-    glob3a = BatchNormalization(glob3a)
+    glob3a = BatchNormalization()(glob3a)
     conv3b = conv3(embedded_sequences_2)
     glob3b = GlobalAveragePooling1D()(conv3b)
     glob3b = Dropout(0.2)(glob3b)
-    glob3b = BatchNormalization(glob3b)
+    glob3b = BatchNormalization()(glob3b)
 
     conv4a = conv4(embedded_sequences_1)
     glob4a = GlobalAveragePooling1D()(conv4a)
     glob4a = Dropout(0.2)(glob4a)
-    glob4a = BatchNormalization(glob4a)
+    glob4a = BatchNormalization()(glob4a)
     conv4b = conv4(embedded_sequences_2)
     glob4b = GlobalAveragePooling1D()(conv4b)
     glob4b = Dropout(0.2)(glob4b)
-    glob4b = BatchNormalization(glob4b)
+    glob4b = BatchNormalization()(glob4b)
 
     conv5a = conv5(embedded_sequences_1)
     glob5a = GlobalAveragePooling1D()(conv5a)
     glob5a = Dropout(0.2)(glob5a)
-    glob5a = BatchNormalization(glob5a)
+    glob5a = BatchNormalization()(glob5a)
     conv5b = conv5(embedded_sequences_2)
     glob5b = GlobalAveragePooling1D()(conv5b)
     glob5b = Dropout(0.2)(glob5b)
-    glob5b = BatchNormalization(glob5b)
+    glob5b = BatchNormalization()(glob5b)
 
     conv6a = conv6(embedded_sequences_1)
     glob6a = GlobalAveragePooling1D()(conv6a)
     glob6a = Dropout(0.2)(glob6a)
-    glob6a = BatchNormalization(glob6a)
+    glob6a = BatchNormalization()(glob6a)
     conv6b = conv6(embedded_sequences_2)
     glob6b = GlobalAveragePooling1D()(conv6b)
     glob6b = Dropout(0.2)(glob6b)
-    glob6b = BatchNormalization(glob6b)
+    glob6b = BatchNormalization()(glob6b)
 
     cnn_1 = concatenate([glob1a, glob2a, glob3a, glob4a, glob5a, glob6a])
     cnn_2 = concatenate([glob1b, glob2b, glob3b, glob4b, glob5b, glob6b])
@@ -276,6 +286,12 @@ def basic_baseline(nb_words, EMBEDDING_DIM, \
                    embedding_matrix, MAX_SEQUENCE_LENGTH, \
                    num_rnn, num_dense, rate_drop_rnn, \
                    rate_drop_dense, act):
+    '''
+    This is the basic baseline model 
+
+    model: input layer; embedding layer; rnn layer; dense layer; output layer
+    '''
+
     embedding_layer = Embedding(nb_words,
                                 EMBEDDING_DIM,
                                 weights=[embedding_matrix],
@@ -327,6 +343,11 @@ def basic_cnn(nb_words, EMBEDDING_DIM, \
               embedding_matrix, MAX_SEQUENCE_LENGTH, \
               num_rnn, num_dense, rate_drop_rnn, \
               rate_drop_dense, act):
+    '''
+    This is the basic cnn model 
+
+    model: input layer; embedding layer; several cnn layer; dense layer; output layer
+    '''
     embedding_layer = Embedding(nb_words,
                                 EMBEDDING_DIM,
                                 weights=[embedding_matrix],
@@ -413,6 +434,11 @@ def basic_attention(nb_words, EMBEDDING_DIM, \
                     embedding_matrix, MAX_SEQUENCE_LENGTH, \
                     num_rnn, num_dense, rate_drop_rnn, \
                     rate_drop_dense, act):
+    '''
+    This is the basic attention model 
+
+    model: input layer; embedding layer; rnn layer; attention layer; dense layer; output layer
+    '''
     embedding_layer = Embedding(nb_words,
                                 EMBEDDING_DIM,
                                 weights=[embedding_matrix],
