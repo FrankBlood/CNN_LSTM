@@ -7,10 +7,7 @@
 ## Basic Baseline
 * 我们利用BiGRU分别对两个句子建模，然后取最后一个step的隐藏层作为句子向量表达
 * 结果：
-| Epoch	| Train Loss | Train Acc	| Dev Loss	| Dev Acc	| Test Loss	| Test Acc	|
-| :---: | :--------: | :-------: | :---------: | :------: | :---------: | ：---： |
-| 12 | 0.2209 | 0.8431 | 0.3001 | 0.8479 | 0.3310123806880918 | 0.85018179986121234 |
-
+| Epoch：12	| Train Loss：0.2209 | Train Acc：0.8431	| Dev Loss：0.3001	| Dev Acc：0.8479	| Test Loss：0.3310123806880918	| Test Acc：0.85018179986121234	|
 * 代码如下:
 
 ```
@@ -76,9 +73,7 @@
 ## CNN_RNN
 * 先利用CNN对句子进行表达，得到一个向量。然后把这个向量利用attention的方法对输入的embedding进行加权得到新的embedding，然后再输入到BiGRU中。之后的框架同basic baseline所示。（CNN的模型越复杂，在训练集的效果越好）
 * 结果：
-| Epoch	| Train Loss | Train Acc	| Dev Loss	| Dev Acc	| Test Loss	| Test Acc	|
-| :---: | :--------: | :-------: | :---------: | :------: | :---------: | ：---： |
-| 12 | 0.2148 | 0.8489 | 0.3009	| 0.8498 | 0.33263399748324629 | 0.85055282065279192 |
+| Epoch：12	| Train Loss：0.2148 | Train Acc：0.8489	| Dev Loss：0.3009	| Dev Acc：0.8498	| Test Loss：0.33263399748324629	| Test Acc：0.85055282065279192	|
 * 代码如下：
 
 ```
