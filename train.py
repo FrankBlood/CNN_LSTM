@@ -171,8 +171,8 @@ if __name__ == '__main__':
     else:
         print("what the fuck!")
     
-    # early_stopping =EarlyStopping(monitor='val_acc', patience=3)
-    early_stopping =EarlyStopping(monitor='val_loss', patience=3)
+    early_stopping =EarlyStopping(monitor='val_acc', patience=3)
+    # early_stopping =EarlyStopping(monitor='val_loss', patience=3)
     now_time = '_'.join(time.asctime(time.localtime(time.time())).split(' '))
     bst_model_path = './models/' + model_name + STAMP + '_' + now_time + '.h5'
     print(bst_model_path)

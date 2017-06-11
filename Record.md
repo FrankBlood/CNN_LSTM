@@ -10,6 +10,7 @@
 | basic\_cnn | 4 | 0.1504 | 0.9032 | 0.2585 | 0.8636 | Nan | Nan | basic_cnn_256_200_0.25_0.25_Thu_Jun__8_10:26:04_2017.h5 |
 | cnn\_rnn | 9 | 0.2241 | 0.8415 | 0.2859 | 0.8532 | Nan | Nan | cnn_rnn_256_200_0.25_0.25_Thu_Jun__8_09:38:51_2017.h5 |
 | cnn\_rnn\_1 | 12 | 0.2148 | 0.8489 | 0.3009 | 0.8498 | 0.33263399748324629 | 0.85055282065279192 | cnn_rnn_256_200_0.25_0.25_Fri_Jun__9_06:17:01_2017.h5|
+| cnn\_rnn\_2 | 8 | 0.1841 | 0.8798 | 0.3390 | 0.8345 | 0.41581909009349338 | 0.83524202851403018 | cnn_rnn_256_200_0.25_0.25_Sat_Jun_10_00:36:27_2017.h5 |
 | cnn\_rnn\_tmp | 6 | 0.1408 | 0.9125 | 0.3441 | 0.8341 | Nan | Nan | cnn_rnn_tmp_256_200_0.25_0.25_Thu_Jun__8_11:14:25_2017.h5 |
 | cnn\_rnn\_tmp\_1 | 8 | 0.1069 | 0.9369 | 0.4617 | 0.8331 | 0.54260279737386574 | 0.83712186794247512 | cnn_rnn_tmp_256_200_0.25_0.25_Fri_Jun__9_08:36:03_2017.h5 |
 | cnn\_rnn\_tmp\_2 | 8 | 0.1676 | 0.8934 | 0.3565 | 0.8330 | 0.43183643472427907 | 0.83586039653783639 | cnn_rnn_tmp_256_200_0.25_0.25_Fri_Jun__9_21:39:46_2017.h5 |
@@ -144,18 +145,6 @@
    10. Dropout
    11. BatchNormalization
    12. Dense(sigmoid)
-
-6. ./log/cnn\_rnn\_tmp\_3: same as the second one but add dropout from 0.2 to 0.5 and normalization to every cnn layer
-   The config's details:
-   1. Embedding file: vectors.bin
-   2. Embedding dim: 300
-   3. Max Sequence Length: 30
-   4. Validation split: 0.1
-   5. num rnn: 256
-   6. num dense: 200
-   7. rate drop rnn: 0.25
-   8. rate drop dense: 0.25
-   9. act: relu
    10. 0.1 dev and 0.1 test
    The model's details:
    1. input layer
@@ -171,7 +160,7 @@
    11. BatchNormalization
    12. Dense(sigmoid)
 
-6. ./log/cnn\_rnn\_2: same as the first one but add one more cnn layer filter are 128 and 64
+7. ./log/cnn\_rnn\_2: same as the first one but add one more cnn layer filter are 128 and 64
    The config's details:
    1. Embedding file: vectors.bin
    2. Embedding dim: 300
@@ -196,6 +185,60 @@
    10. Dropout
    11. BatchNormalization
    12. Dense(sigmoid)
+
+8. ./log/cnn\_rnn\_3: same as the 7th one but change earlystop from loss to acc
+   The config's details:
+   1. Embedding file: vectors.bin
+   2. Embedding dim: 300
+   3. Max Sequence Length: 30
+   4. Validation split: 0.1
+   5. num rnn: 256
+   6. num dense: 200
+   7. rate drop rnn: 0.25
+   8. rate drop dense: 0.25
+   9. act: relu
+   10. 0.1 dev and 0.1 test
+   The model's details:
+   1. input layer
+   2. embedding layer
+   3. Simple CNN layer(two cnn layers: 128 and 64)
+   4. attention layer to embedding layer
+   5. BiGRU layer
+   6. multiply
+   7. Dropout
+   8. BatchNormalization
+   9. Dense
+   10. Dropout
+   11. BatchNormalization
+   12. Dense(sigmoid)
+   13. earlystop: acc
+
+9. ./log/cnn\_rnn\_tmp\_4: same as the 6th one but change earlystop from loss to acc
+   The config's details:
+   1. Embedding file: vectors.bin
+   2. Embedding dim: 300
+   3. Max Sequence Length: 30
+   4. Validation split: 0.1
+   5. num rnn: 256
+   6. num dense: 200
+   7. rate drop rnn: 0.25
+   8. rate drop dense: 0.25
+   9. act: relu
+   10. 0.1 dev and 0.1 test
+   The model's details:
+   1. input layer
+   2. embedding layer
+   3. Complex CNN layer(add dropout from 0.2 to 0.5 and normalization to every layers)
+   4. attention layer to embedding layer
+   5. BiGRU layer
+   6. multiply
+   7. Dropout
+   8. BatchNormalization
+   9. Dense
+   10. Dropout
+   11. BatchNormalization
+   12. Dense(sigmoid)
+   13. earlystop from loss to acc
 
 ## basic\_baseline
 1. ./log/basic\_baseline contains the first try about it
