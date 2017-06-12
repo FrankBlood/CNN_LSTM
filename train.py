@@ -171,11 +171,11 @@ if __name__ == '__main__':
     else:
         print("what the fuck!")
     
-    early_stopping =EarlyStopping(monitor='val_acc', patience=3)
-    # early_stopping =EarlyStopping(monitor='val_loss', patience=3)
+    # early_stopping =EarlyStopping(monitor='val_acc', patience=3)
+    early_stopping =EarlyStopping(monitor='val_loss', patience=3)
     now_time = '_'.join(time.asctime(time.localtime(time.time())).split(' '))
     bst_model_path = './models/' + model_name + STAMP + '_' + now_time + '.h5'
-    print(bst_model_path)
+    print('bst_model_path:', bst_model_path)
     model_checkpoint = ModelCheckpoint(bst_model_path, save_best_only=True, save_weights_only=True)
 
     if os.path.exists(bst_model_path):
@@ -194,7 +194,8 @@ if __name__ == '__main__':
                      epochs=200, batch_size=512, shuffle=True, 
                      class_weight=class_weight, callbacks=[early_stopping, model_checkpoint])
                      # class_weight=class_weight, callbacks=[model_checkpoint])
-
-    print(bst_model_path)
-    print(model.evaluate([data_1_test, data_2_test], labels_test, batch_size=512))
-    # model.load_weights(bst_model_path)
+    
+    model.load_weights(bst_model_path)
+    print('min_val_loss:', min(hist.history['val_loss']))
+    print('bst_model_path:', bst_model_path)
+    print('test:', model.evaluate([data_1_test, data_2_test], labels_test, batch_size=512))
