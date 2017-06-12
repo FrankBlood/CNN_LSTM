@@ -56,10 +56,10 @@ MAX_NB_WORDS = 200000
 EMBEDDING_DIM = 300
 VALIDATION_SPLIT = 0.2
 
-num_rnn = np.random.randint(175, 275)
-num_dense = np.random.randint(100, 150)
-rate_drop_rnn = 0.15 + np.random.rand() * 0.25
-rate_drop_dense = 0.15 + np.random.rand() * 0.25
+# num_rnn = np.random.randint(175, 275)
+# num_dense = np.random.randint(100, 150)
+# rate_drop_rnn = 0.15 + np.random.rand() * 0.25
+# rate_drop_dense = 0.15 + np.random.rand() * 0.25
 
 num_rnn, num_dense = 256, 200
 rate_drop_rnn, rate_drop_dense = 0.25, 0.25
