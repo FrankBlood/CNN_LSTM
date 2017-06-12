@@ -1,4 +1,6 @@
 /models
 /log
+/dataset
+/new_log
 *.pyc
 id*
