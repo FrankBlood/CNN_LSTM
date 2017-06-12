@@ -1,5 +1,9 @@
 # CNN_LSTM
-* add CNN as an attention to LSTM
+* `model.py`: all models
+* `train.py`: train details
+* `config.py`: some global parameters
+* `show_details.py`: debug the framework of models
+* `run.sh`: run the train
 
 # Summary
 | Model\_Log | Epoch | Train Loss | Train Acc | Dev Loss | Dev Acc | Test Loss | Test Acc | Model Weight |
