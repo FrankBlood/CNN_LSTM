@@ -35,14 +35,16 @@ def cnn_rnn(nb_words, EMBEDDING_DIM, \
 
     model: input layer; embedding layer; cnn based attention layer; rnn layer; dense layer; output layer
     '''
+
     embedding_layer = Embedding(nb_words,
                                 EMBEDDING_DIM,
                                 weights=[embedding_matrix],
                                 input_length=MAX_SEQUENCE_LENGTH,
-                                trainable=False)
+                                trainable=True)
+
     rnn_layer = Bidirectional(GRU(num_rnn, dropout=rate_drop_rnn, recurrent_dropout=rate_drop_rnn))
-    cnn_layer = Conv1D(activation="relu", padding="valid", strides=1, filters=128, kernel_size=4)
-    cnn_layer1 = Conv1D(activation="relu", padding="valid", strides=1, filters=64, kernel_size=4)
+    cnn_layer = Conv1D(activation="relu", padding="valid", strides=1, filters=64, kernel_size=3)
+    # cnn_layer1 = Conv1D(activation="relu", padding="valid", strides=1, filters=64, kernel_size=4)
     pooling_layer = GlobalMaxPooling1D()
     cnn_dense = Dense(300)
     cnn_dropout1 = Dropout(0.2)
@@ -59,7 +61,7 @@ def cnn_rnn(nb_words, EMBEDDING_DIM, \
     embedded_sequences_2 = embedding_layer(sequence_2_input)
 
     cnn_1 = cnn_layer(embedded_sequences_1)
-    cnn_1 = cnn_layer1(cnn_1)
+    # cnn_1 = cnn_layer1(cnn_1)
     cnn_1 = pooling_layer(cnn_1)
     cnn_1 = cnn_dropout1(cnn_1)
     cnn_1 = cnn_dense(cnn_1)
@@ -67,7 +69,7 @@ def cnn_rnn(nb_words, EMBEDDING_DIM, \
     cnn_1 = cnn_batchnormalization(cnn_1)
 
     cnn_2 = cnn_layer(embedded_sequences_2) 
-    cnn_2 = cnn_layer1(cnn_2)
+    # cnn_2 = cnn_layer1(cnn_2)
     cnn_2 = pooling_layer(cnn_2)
     cnn_2 = cnn_dropout1(cnn_2)
     cnn_2 = cnn_dense(cnn_2)
@@ -153,7 +155,7 @@ def cnn_rnn_tmp(nb_words, EMBEDDING_DIM, \
                                 EMBEDDING_DIM,
                                 weights=[embedding_matrix],
                                 input_length=MAX_SEQUENCE_LENGTH,
-                                trainable=False)
+                                trainable=True)
     rnn_layer = Bidirectional(GRU(num_rnn, dropout=rate_drop_rnn, recurrent_dropout=rate_drop_rnn))
     cnn_layer = Conv1D(activation="relu", padding="valid", strides=1, filters=32, kernel_size=4)
     conv1 = Conv1D(filters=128, kernel_size=1, padding='same', activation='relu')
@@ -299,7 +301,7 @@ def basic_baseline(nb_words, EMBEDDING_DIM, \
                                 EMBEDDING_DIM,
                                 weights=[embedding_matrix],
                                 input_length=MAX_SEQUENCE_LENGTH,
-                                trainable=False)
+                                trainable=True)
     rnn_layer = Bidirectional(GRU(num_rnn, dropout=rate_drop_rnn, recurrent_dropout=rate_drop_rnn))
 
     sequence_1_input = Input(shape=(MAX_SEQUENCE_LENGTH,), dtype='int32')
@@ -355,7 +357,7 @@ def basic_cnn(nb_words, EMBEDDING_DIM, \
                                 EMBEDDING_DIM,
                                 weights=[embedding_matrix],
                                 input_length=MAX_SEQUENCE_LENGTH,
-                                trainable=False)
+                                trainable=True)
 
     conv1 = Conv1D(filters=128, kernel_size=1, padding='same', activation='relu')
     conv2 = Conv1D(filters=128, kernel_size=2, padding='same', activation='relu')
@@ -446,7 +448,7 @@ def basic_attention(nb_words, EMBEDDING_DIM, \
                                 EMBEDDING_DIM,
                                 weights=[embedding_matrix],
                                 input_length=MAX_SEQUENCE_LENGTH,
-                                trainable=False)
+                                trainable=True)
     rnn_layer = Bidirectional(GRU(num_rnn, dropout=rate_drop_rnn, recurrent_dropout=rate_drop_rnn, return_sequences=True))
     attention_W = TimeDistributed(Dense(350, activation='tanh'))
     attention_w = TimeDistributed(Dense(1))
