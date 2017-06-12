@@ -40,7 +40,7 @@ def cnn_rnn(nb_words, EMBEDDING_DIM, \
                                 EMBEDDING_DIM,
                                 weights=[embedding_matrix],
                                 input_length=MAX_SEQUENCE_LENGTH,
-                                trainable=True)
+                                trainable=False)
 
     rnn_layer = Bidirectional(GRU(num_rnn, dropout=rate_drop_rnn, recurrent_dropout=rate_drop_rnn))
     cnn_layer = Conv1D(activation="relu", padding="valid", strides=1, filters=64, kernel_size=3)
