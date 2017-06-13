@@ -43,7 +43,7 @@ def cnn_rnn(nb_words, EMBEDDING_DIM, \
                                 trainable=False)
 
     rnn_layer = Bidirectional(GRU(num_rnn, dropout=rate_drop_rnn, recurrent_dropout=rate_drop_rnn))
-    cnn_layer = Conv1D(activation="relu", padding="valid", strides=1, filters=64, kernel_size=3)
+    cnn_layer = Conv1D(activation="relu", padding="valid", strides=1, filters=128, kernel_size=2)
     # cnn_layer1 = Conv1D(activation="relu", padding="valid", strides=1, filters=64, kernel_size=4)
     pooling_layer = GlobalMaxPooling1D()
     cnn_dense = Dense(300)

@@ -176,7 +176,7 @@ if __name__ == '__main__':
     now_time = '_'.join(time.asctime(time.localtime(time.time())).split(' '))
     bst_model_path = './models/' + model_name + STAMP + '_' + now_time + '.h5'
     print('bst_model_path:', bst_model_path)
-    model_checkpoint = ModelCheckpoint(bst_model_path, save_best_only=True, save_weights_only=True)
+    model_checkpoint = ModelCheckpoint(bst_model_path, monitor='val_loss', save_best_only=True, save_weights_only=True)
 
     if os.path.exists(bst_model_path):
         model.load_weights(bst_model_path)
