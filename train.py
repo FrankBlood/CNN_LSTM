@@ -195,7 +195,7 @@ if __name__ == '__main__':
                      class_weight=class_weight, callbacks=[early_stopping, model_checkpoint])
                      # class_weight=class_weight, callbacks=[model_checkpoint])
     
-    model.load_weights(bst_model_path)
+    # model.load_weights(bst_model_path)
     print('min_val_loss:', min(hist.history['val_loss']))
     print('bst_model_path:', bst_model_path)
     print('test:', model.evaluate([data_1_test, data_2_test], labels_test, batch_size=512))
