@@ -140,6 +140,122 @@ def cnn_rnn(nb_words, EMBEDDING_DIM, \
     return model
 
 ########################################
+## CNN based RNN
+########################################
+def cnn_rnn_add(nb_words, EMBEDDING_DIM, \
+                embedding_matrix, MAX_SEQUENCE_LENGTH, \
+                num_rnn, num_dense, rate_drop_rnn, \
+                rate_drop_dense, act):
+    '''
+    This is the basic cnn rnn model 
+
+    model: input layer; embedding layer; cnn based attention layer; rnn layer; dense layer; output layer
+    '''
+
+    embedding_layer = Embedding(nb_words,
+                                EMBEDDING_DIM,
+                                weights=[embedding_matrix],
+                                input_length=MAX_SEQUENCE_LENGTH,
+                                trainable=False)
+
+    rnn_layer = Bidirectional(GRU(num_rnn, dropout=rate_drop_rnn, recurrent_dropout=rate_drop_rnn))
+    cnn_layer = Conv1D(activation="relu", padding="valid", strides=1, filters=64, kernel_size=3)
+    # cnn_layer1 = Conv1D(activation="relu", padding="valid", strides=1, filters=64, kernel_size=4)
+    pooling_layer = GlobalMaxPooling1D()
+    cnn_dense = Dense(300)
+    cnn_dropout1 = Dropout(0.2)
+    cnn_dropout2 = Dropout(0.2)
+    cnn_batchnormalization = BatchNormalization()
+    cnn_repeatvector = RepeatVector(EMBEDDING_DIM)
+    cnn_dense1 = Dense(300)
+    cnn_timedistributed = TimeDistributed(Dense(1))
+
+    sequence_1_input = Input(shape=(MAX_SEQUENCE_LENGTH,), dtype='int32')
+    embedded_sequences_1 = embedding_layer(sequence_1_input)
+
+    sequence_2_input = Input(shape=(MAX_SEQUENCE_LENGTH,), dtype='int32')
+    embedded_sequences_2 = embedding_layer(sequence_2_input)
+
+    cnn_1 = cnn_layer(embedded_sequences_1)
+    # cnn_1 = cnn_layer1(cnn_1)
+    cnn_1 = pooling_layer(cnn_1)
+    cnn_1 = cnn_dropout1(cnn_1)
+    cnn_1 = cnn_dense(cnn_1)
+    cnn_1 = cnn_dropout2(cnn_1)
+    cnn_1 = cnn_batchnormalization(cnn_1)
+
+    cnn_2 = cnn_layer(embedded_sequences_2) 
+    # cnn_2 = cnn_layer1(cnn_2)
+    cnn_2 = pooling_layer(cnn_2)
+    cnn_2 = cnn_dropout1(cnn_2)
+    cnn_2 = cnn_dense(cnn_2)
+    cnn_2 = cnn_dropout2(cnn_2)
+    cnn_2 = cnn_batchnormalization(cnn_2)
+    
+    # cnn_1 = cnn_repeatvector(cnn_1)
+    # cnn_2 = cnn_repeatvector(cnn_2)
+
+    cnn_1_t = cnn_dense1(cnn_1)
+    cnn_2_t = cnn_dense1(cnn_2)
+
+    # cnn_1_t = cnn_timedistributed(cnn_1)
+    # cnn_2_t = cnn_timedistributed(cnn_2)
+
+    # cnn_1_t = Permute([2, 1])(cnn_1_t)
+    # cnn_2_t = Permute([2, 1])(cnn_2_t)
+
+    # a1 = multiply([cnn_1_t, embedded_sequences_1])
+    # a2 = multiply([cnn_2_t, embedded_sequences_2])
+    
+    # a1 = Permute([2, 1])(a1)
+    # a2 = Permute([2, 1])(a2)
+    
+    # a1 = Lambda(lambda x: K.sum(x, axis=1))(a1)
+    # a2 = Lambda(lambda x: K.sum(x, axis=1))(a2)
+
+    # a1 = Activation('sigmoid')(a1)
+    # a2 = Activation('sigmoid')(a2)
+
+    # embedded_sequences_1 = Permute([2, 1])(embedded_sequences_1)
+    # embedded_sequences_2 = Permute([2, 1])(embedded_sequences_2)
+    
+    x1 = add([cnn_1_t, embedded_sequences_1])
+    x2 = add([cnn_2_t, embedded_sequences_2])
+
+    x1 = Permute([2, 1])(x1)
+    x2 = Permute([2, 1])(x2)
+
+    x1 = rnn_layer(x1)
+    x2 = rnn_layer(x2)
+
+    merged = multiply([x1, x2])
+    merged = Dropout(rate_drop_dense)(merged)
+    merged = BatchNormalization()(merged)
+
+    merged = Dense(num_dense, activation=act)(merged)
+    merged = Dropout(rate_drop_dense)(merged)
+    merged = BatchNormalization()(merged)
+
+    preds = Dense(1, activation='sigmoid')(merged)
+
+    # x1 = TimeDistributed(Dense(EMBEDDING_DIM, activation='relu'))(embedded_sequences_1)
+    # x1 = Lambda(lambda x: K.max(x, axis=1), output_shape=(EMBEDDING_DIM, ))(x1)
+
+    # y1 = TimeDistributed(Dense(EMBEDDING_DIM, activation='relu'))(embedded_sequences_2)
+    # y1 = Lambda(lambda x: K.max(x, axis=1), output_shape=(EMBEDDING_DIM, ))(y1)
+
+    ########################################
+    ## train the model
+    ########################################
+    model = Model(inputs=[sequence_1_input, sequence_2_input], outputs=preds)
+    model.compile(loss='binary_crossentropy',
+              optimizer='nadam',
+              metrics=['acc'])
+    model.summary()
+    # print(STAMP)
+    return model
+
+########################################
 ## CNN based RNN tmp
 ########################################
 def cnn_rnn_tmp(nb_words, EMBEDDING_DIM, \
