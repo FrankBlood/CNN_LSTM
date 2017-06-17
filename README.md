@@ -157,6 +157,33 @@
    > * BatchNormalization
    > * Dense(sigmoid)
 
+1. ./new\_log/cnn\_rnn\_5: 1 cnn layer filters 128, kernels 2, un-trainable, choose last epoch
+   The config's details:
+   > * Embedding file: vectors.bin
+   > * Embedding dim: 300
+   > * Max Sequence Length: 30
+   > * Validation split: 0.2
+   > * num rnn: 256
+   > * num dense: 200
+   > * rate drop rnn: 0.25
+   > * rate drop dense: 0.25
+   > * act: relu
+   > * dev 0.1, test 0.1
+
+   The model's details:
+   > * input layer
+   > * embedding layer: trainable=False
+   > * CNN layer: 128 filters and 2 kernels
+   > * attention layer to embedding layer
+   > * BiGRU layer(shown as config)
+   > * multiply
+   > * Dropout
+   > * BatchNormalization
+   > * Dense
+   > * Dropout
+   > * BatchNormalization
+   > * Dense(sigmoid)
+
 ## basic\_baseline
 1. ./new\_log/basic\_baseline: trainable
    The config's details:
