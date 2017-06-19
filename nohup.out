@@ -1,0 +1,14 @@
+Using TensorFlow backend.
+Indexing word vectors
+Processing text dataset
+Found 404290 texts in train.csv
+Found 85519 unique tokens
+('Shape of data tensor:', (404290, 30))
+('Shape of label tensor:', (404290,))
+Preparing embedding matrix
+Null word embeddings: 18731
+######################################################
+Traceback (most recent call last):
+  File "train.py", line 181, in <module>
+    if sys.argv[1] == '0':
+IndexError: list index out of range

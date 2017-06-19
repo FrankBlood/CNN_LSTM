@@ -43,12 +43,12 @@ def cnn_rnn(nb_words, EMBEDDING_DIM, \
                                 trainable=False)
 
     rnn_layer = Bidirectional(GRU(num_rnn, dropout=rate_drop_rnn, recurrent_dropout=rate_drop_rnn))
-    cnn_layer = Conv1D(activation="relu", padding="valid", strides=1, filters=128, kernel_size=3)
+    cnn_layer = Conv1D(activation="relu", padding="valid", strides=1, filters=128, kernel_size=2)
     # cnn_layer1 = Conv1D(activation="relu", padding="valid", strides=1, filters=64, kernel_size=4)
     pooling_layer = GlobalMaxPooling1D()
     cnn_dense = Dense(300)
-    cnn_dropout1 = Dropout(0.5)
-    cnn_dropout2 = Dropout(0.5)
+    cnn_dropout1 = Dropout(0.35)
+    cnn_dropout2 = Dropout(0.35)
     cnn_batchnormalization = BatchNormalization()
     cnn_repeatvector = RepeatVector(EMBEDDING_DIM)
     cnn_dense1 = Dense(300)
@@ -120,7 +120,7 @@ def cnn_rnn(nb_words, EMBEDDING_DIM, \
     merged = Dropout(rate_drop_dense)(merged)
     merged = BatchNormalization()(merged)
 
-    preds = Dense(1, activation='sigmoid')(merged)
+    preds = Dense(3, activation='softmax')(merged)
 
     # x1 = TimeDistributed(Dense(EMBEDDING_DIM, activation='relu'))(embedded_sequences_1)
     # x1 = Lambda(lambda x: K.max(x, axis=1), output_shape=(EMBEDDING_DIM, ))(x1)
@@ -132,7 +132,7 @@ def cnn_rnn(nb_words, EMBEDDING_DIM, \
     ## train the model
     ########################################
     model = Model(inputs=[sequence_1_input, sequence_2_input], outputs=preds)
-    model.compile(loss='binary_crossentropy',
+    model.compile(loss='categorical_crossentropy',
               optimizer='nadam',
               metrics=['acc'])
     model.summary()
@@ -271,13 +271,13 @@ def cnn_rnn_tmp(nb_words, EMBEDDING_DIM, \
     merged = Dropout(rate_drop_dense)(merged)
     merged = BatchNormalization()(merged)
 
-    preds = Dense(1, activation='sigmoid')(merged)
+    preds = Dense(3, activation='softmax')(merged)
 
     ########################################
     ## train the model
     ########################################
     model = Model(inputs=[sequence_1_input, sequence_2_input], outputs=preds)
-    model.compile(loss='binary_crossentropy',
+    model.compile(loss='categorical_crossentropy',
               optimizer='nadam',
               metrics=['acc'])
     model.summary()
@@ -322,7 +322,7 @@ def basic_baseline(nb_words, EMBEDDING_DIM, \
     merged = Dropout(rate_drop_dense)(merged)
     merged = BatchNormalization()(merged)
 
-    preds = Dense(1, activation='sigmoid')(merged)
+    preds = Dense(3, activation='softmax')(merged)
 
     # x1 = TimeDistributed(Dense(EMBEDDING_DIM, activation='relu'))(embedded_sequences_1)
     # x1 = Lambda(lambda x: K.max(x, axis=1), output_shape=(EMBEDDING_DIM, ))(x1)
@@ -334,7 +334,7 @@ def basic_baseline(nb_words, EMBEDDING_DIM, \
     ## train the model
     ########################################
     model = Model(inputs=[sequence_1_input, sequence_2_input], outputs=preds)
-    model.compile(loss='binary_crossentropy',
+    model.compile(loss='categorical_crossentropy',
               optimizer='nadam',
               metrics=['acc'])
     model.summary()
@@ -419,13 +419,13 @@ def basic_cnn(nb_words, EMBEDDING_DIM, \
 
     x = Dropout(0.2)(x)
     x = BatchNormalization()(x)
-    preds = Dense(1, activation='sigmoid')(x)
+    preds = Dense(3, activation='softmax')(x)
 
     ########################################
     ## train the model
     ########################################
     model = Model(inputs=[sequence_1_input, sequence_2_input], outputs=preds)
-    model.compile(loss='binary_crossentropy',
+    model.compile(loss='categorical_crossentropy',
               optimizer='nadam',
               metrics=['acc'])
     model.summary()
@@ -489,13 +489,13 @@ def basic_attention(nb_words, EMBEDDING_DIM, \
     merged = Dropout(rate_drop_dense)(merged)
     merged = BatchNormalization()(merged)
 
-    preds = Dense(1, activation='sigmoid')(merged)
+    preds = Dense(3, activation='softmax')(merged)
 
     ########################################
     ## train the model
     ########################################
     model = Model(inputs=[sequence_1_input, sequence_2_input], outputs=preds)
-    model.compile(loss='binary_crossentropy',
+    model.compile(loss='categorical_crossentropy',
               optimizer='nadam',
               metrics=['acc'])
     model.summary()

@@ -29,6 +29,7 @@ from keras.preprocessing.text import Tokenizer
 from keras.preprocessing.sequence import pad_sequences
 from keras.models import Model
 from keras.callbacks import EarlyStopping, ModelCheckpoint
+from keras.utils import np_utils
 
 from config import BASE_DIR, EMBEDDING_FILE, TRAIN_DATA_FILE, DEV_DATA_FILE, TEST_DATA_FILE, MAX_SEQUENCE_LENGTH, MAX_NB_WORDS, EMBEDDING_DIM, VALIDATION_SPLIT, STAMP
 from config import num_rnn, num_dense, rate_drop_rnn, rate_drop_dense, act, re_weight
@@ -41,44 +42,58 @@ reload(sys)
 sys.setdefaultencoding('utf-8')
 
 if __name__ == '__main__':
+    label_dict = {'neutral': 0, 'contradiction': 1, 'entailment': 2}
     texts_1 = [] 
     texts_2 = []
     labels = []
     with codecs.open(TRAIN_DATA_FILE, encoding='utf-8') as f:
-        reader = csv.reader(f, delimiter=',')
+        reader = csv.reader(f, delimiter='\t')
         header = next(reader)
         for values in reader:
-            texts_1.append(text_to_wordlist(values[3], False, False))
-            texts_2.append(text_to_wordlist(values[4], False, False))
-            labels.append(int(values[5]))
+            try:
+                labels.append(int(label_dict[values[0]]))
+                texts_1.append(text_to_wordlist(values[1], False, False))
+                texts_2.append(text_to_wordlist(values[2], False, False))
+                # print(values[0])
+            except:
+                # print(values[0])
+                pass
             # break
     print('Found %s texts in train.csv' % len(texts_1))
 
-    # dev_texts_1 = []
-    # dev_texts_2 = []
-    # dev_labels = []
-    # with codecs.open(DEV_DATA_FILE, encoding='utf-8') as f:
-    #     reader = csv.reader(f, delimiter=',')
-    #     header = next(reader)
-    #     for values in reader:
-    #         dev_texts_1.append(text_to_wordlist(values[3], False, False))
-    #         dev_texts_2.append(text_to_wordlist(values[4], False, False))
-    #         dev_labels.append(int(values[5]))
-    #         # break
-    # print('Found %s texts in dev.csv' % len(dev_texts_1))
+    dev_texts_1 = []
+    dev_texts_2 = []
+    dev_labels = []
+    with codecs.open(DEV_DATA_FILE, encoding='utf-8') as f:
+        reader = csv.reader(f, delimiter='\t')
+        header = next(reader)
+        for values in reader:
+            try:
+                dev_labels.append(int(label_dict[values[0]]))
+                dev_texts_1.append(text_to_wordlist(values[1], False, False))
+                dev_texts_2.append(text_to_wordlist(values[2], False, False))
+            except:
+                # print(values[0])
+                pass
+            # break
+    print('Found %s texts in dev.csv' % len(dev_texts_1))
 
-    # test_texts_1 = []
-    # test_texts_2 = []
-    # test_labels = []
-    # with codecs.open(TEST_DATA_FILE, encoding='utf-8') as f:
-    #     reader = csv.reader(f, delimiter=',')
-    #     header = next(reader)
-    #     for values in reader:
-    #         test_texts_1.append(text_to_wordlist(values[3], False, False))
-    #         test_texts_2.append(text_to_wordlist(values[4], False, False))
-    #         test_labels.append(int(values[5]))
-    #         # break
-    # print('Found %s texts in test.csv' % len(test_texts_1))
+    test_texts_1 = []
+    test_texts_2 = []
+    test_labels = []
+    with codecs.open(TEST_DATA_FILE, encoding='utf-8') as f:
+        reader = csv.reader(f, delimiter='\t')
+        header = next(reader)
+        for values in reader:
+            try:
+                test_labels.append(int(label_dict[values[0]]))
+                test_texts_1.append(text_to_wordlist(values[1], False, False))
+                test_texts_2.append(text_to_wordlist(values[2], False, False))
+            except:
+                # print(values[0])
+                pass
+            # break
+    print('Found %s texts in test.csv' % len(test_texts_1))
 
     # test_texts_1 = []
     # test_texts_2 = []
@@ -94,11 +109,17 @@ if __name__ == '__main__':
     # print('Found %s texts in test.csv' % len(test_texts_1))
 
     tokenizer = Tokenizer(num_words=MAX_NB_WORDS)
-    tokenizer.fit_on_texts(texts_1 + texts_2)
+    tokenizer.fit_on_texts(texts_1 + texts_2 + dev_texts_1 + dev_texts_2 + test_texts_1 + test_texts_2)
     # tokenizer.fit_on_texts(texts_1 + texts_2 + test_texts_1 + test_texts_2)
 
     sequences_1 = tokenizer.texts_to_sequences(texts_1)
     sequences_2 = tokenizer.texts_to_sequences(texts_2)
+    
+    dev_sequences_1 = tokenizer.texts_to_sequences(dev_texts_1)
+    dev_sequences_2 = tokenizer.texts_to_sequences(dev_texts_2)
+    
+    test_sequences_1 = tokenizer.texts_to_sequences(test_texts_1)
+    test_sequences_2 = tokenizer.texts_to_sequences(test_texts_2)
     # test_sequences_1 = tokenizer.texts_to_sequences(test_texts_1)
     # test_sequences_2 = tokenizer.texts_to_sequences(test_texts_2)
 
@@ -107,9 +128,25 @@ if __name__ == '__main__':
 
     data_1 = pad_sequences(sequences_1, maxlen=MAX_SEQUENCE_LENGTH)
     data_2 = pad_sequences(sequences_2, maxlen=MAX_SEQUENCE_LENGTH)
-    labels = np.array(labels)
+    labels = np_utils.to_categorical(np.array(labels), 3)
+    
+    dev_data_1 = pad_sequences(dev_sequences_1, maxlen=MAX_SEQUENCE_LENGTH)
+    dev_data_2 = pad_sequences(dev_sequences_2, maxlen=MAX_SEQUENCE_LENGTH)
+    dev_labels = np_utils.to_categorical(np.array(dev_labels), 3)
+    
+    test_data_1 = pad_sequences(test_sequences_1, maxlen=MAX_SEQUENCE_LENGTH)
+    test_data_2 = pad_sequences(test_sequences_2, maxlen=MAX_SEQUENCE_LENGTH)
+    test_labels = np_utils.to_categorical(np.array(test_labels), 3)
+    # labels = np.array(labels)
+    
     print('Shape of data tensor:', data_1.shape)
     print('Shape of label tensor:', labels.shape)
+    
+    print('Shape of dev_data tensor:', dev_data_1.shape)
+    print('Shape of dev_label tensor:', dev_labels.shape)
+    
+    print('Shape of test_data tensor:', test_data_1.shape)
+    print('Shape of test_label tensor:', test_labels.shape)
 
     ########################################
     ## prepare embeddings
@@ -146,33 +183,33 @@ if __name__ == '__main__':
     ########################################
     ## sample train/validation data
     ########################################
-    np.random.seed(1234)
-    perm = np.random.permutation(len(data_1))
-    idx_train = perm[:int(len(data_1)*(1-VALIDATION_SPLIT))]
-    idx_dev = perm[int(len(data_1)*(1-VALIDATION_SPLIT)):int(len(data_1)*(1-VALIDATION_SPLIT/2))]
-    idx_test = perm[int(len(data_1)*(1-VALIDATION_SPLIT/2)):]
+    # np.random.seed(1234)
+    # perm = np.random.permutation(len(data_1))
+    # idx_train = perm[:int(len(data_1)*(1-VALIDATION_SPLIT))]
+    # idx_dev = perm[int(len(data_1)*(1-VALIDATION_SPLIT)):int(len(data_1)*(1-VALIDATION_SPLIT/2))]
+    # idx_test = perm[int(len(data_1)*(1-VALIDATION_SPLIT/2)):]
     # idx_val = perm[int(len(data_1)*(1-VALIDATION_SPLIT)):]
 
-    data_1_train = np.vstack((data_1[idx_train], data_2[idx_train]))
-    data_2_train = np.vstack((data_2[idx_train], data_1[idx_train]))
-    labels_train = np.concatenate((labels[idx_train], labels[idx_train]))
+    # data_1_train = np.vstack((data_1[idx_train], data_2[idx_train]))
+    # data_2_train = np.vstack((data_2[idx_train], data_1[idx_train]))
+    # labels_train = np.concatenate((labels[idx_train], labels[idx_train]))
 
-    data_1_dev = np.vstack((data_1[idx_dev], data_2[idx_dev]))
-    data_2_dev = np.vstack((data_2[idx_dev], data_1[idx_dev]))
-    labels_dev = np.concatenate((labels[idx_dev], labels[idx_dev]))
+    # data_1_dev = np.vstack((data_1[idx_dev], data_2[idx_dev]))
+    # data_2_dev = np.vstack((data_2[idx_dev], data_1[idx_dev]))
+    # labels_dev = np.concatenate((labels[idx_dev], labels[idx_dev]))
     
-    data_1_test = np.vstack((data_1[idx_test], data_2[idx_test]))
-    data_2_test = np.vstack((data_2[idx_test], data_1[idx_test]))
-    labels_test = np.concatenate((labels[idx_test], labels[idx_test]))
+    # data_1_test = np.vstack((data_1[idx_test], data_2[idx_test]))
+    # data_2_test = np.vstack((data_2[idx_test], data_1[idx_test]))
+    # labels_test = np.concatenate((labels[idx_test], labels[idx_test]))
     
     # data_1_val = np.vstack((data_1[idx_val], data_2[idx_val]))
     # data_2_val = np.vstack((data_2[idx_val], data_1[idx_val]))
     # labels_val = np.concatenate((labels[idx_val], labels[idx_val]))
 
-    weight_val = np.ones(len(labels_dev))
-    if re_weight:
-        weight_val *= 0.472001959
-        weight_val[labels_dev==0] = 1.309028344
+    # weight_val = np.ones(len(labels_dev))
+    # if re_weight:
+    #     weight_val *= 0.472001959
+    #     weight_val[labels_dev==0] = 1.309028344
 
     ########################################
     ## define the model structure
@@ -234,13 +271,14 @@ if __name__ == '__main__':
     else:
         class_weight = None
 
-    hist = model.fit([data_1_train, data_2_train], labels_train, 
-                     validation_data=([data_1_dev, data_2_dev], labels_dev, weight_val), 
+    hist = model.fit([data_1, data_2], labels, 
+                     validation_data=([dev_data_1, dev_data_2], dev_labels), 
                      epochs=200, batch_size=512, shuffle=True, 
-                     class_weight=class_weight, callbacks=[early_stopping, model_checkpoint])
+                     callbacks=[early_stopping, model_checkpoint])
+                     # class_weight=class_weight, callbacks=[early_stopping, model_checkpoint])
                      # class_weight=class_weight, callbacks=[model_checkpoint])
     
     # model.load_weights(bst_model_path)
     print('min_val_loss:', min(hist.history['val_loss']))
     print('bst_model_path:', bst_model_path)
-    print('test:', model.evaluate([data_1_test, data_2_test], labels_test, batch_size=512))
+    print('test:', model.evaluate([test_data_1, test_data_2], test_labels, batch_size=512))
