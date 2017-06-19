@@ -213,6 +213,13 @@ if __name__ == '__main__':
                             rate_drop_dense, act)
         model_name = 'basic_cnn'
 
+    elif sys.argv[1] == '5':
+        model = cnn_rnn_add(nb_words, EMBEDDING_DIM, \
+                            embedding_matrix, MAX_SEQUENCE_LENGTH, \
+                            num_rnn, num_dense, rate_drop_rnn, \
+                            rate_drop_dense, act)
+        model_name = 'cnn_rnn_add'
+
     else:
         print("what the fuck!")
     
