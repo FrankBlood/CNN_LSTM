@@ -36,12 +36,12 @@ from keras.callbacks import EarlyStopping, ModelCheckpoint
 ########################################
 ## set directories and parameters
 ########################################
-BASE_DIR = '/home/hegx/Research/Quora_Question_Pairs/data/'
+BASE_DIR = '/home/hegx/Research/CNN_LSTM/dataset/snli/'
 
 # EMBEDDING_FILE = BASE_DIR + 'vectors_5.bin'
 # EMBEDDING_FILE = BASE_DIR + 'vectors_300_8_.bin'
 # EMBEDDING_FILE = BASE_DIR + 'vectors.bin'
-EMBEDDING_FILE = BASE_DIR + 'glove.840B.300d.txt'
+EMBEDDING_FILE = '/home/hegx/Research/Quora_Question_Pairs/data/glove.840B.300d.txt'
 # EMBEDDING_FILE = BASE_DIR + 'gensim_vector_window8.bin'
 # EMBEDDING_FILE = BASE_DIR + 'GoogleNews-vectors-negative300.bin'
 
@@ -49,9 +49,9 @@ EMBEDDING_FILE = BASE_DIR + 'glove.840B.300d.txt'
 # DEV_DATA_FILE = BASE_DIR + 'None'
 # TEST_DATA_FILE = BASE_DIR + 'test_lower_stemmer.csv'
 
-TRAIN_DATA_FILE = BASE_DIR + 'train.csv'
-DEV_DATA_FILE = BASE_DIR + 'None'
-TEST_DATA_FILE = BASE_DIR + 'test.csv'
+TRAIN_DATA_FILE = BASE_DIR + 'train'
+DEV_DATA_FILE = BASE_DIR + 'dev'
+TEST_DATA_FILE = BASE_DIR + 'test'
 
 MAX_SEQUENCE_LENGTH = 30
 MAX_NB_WORDS = 200000

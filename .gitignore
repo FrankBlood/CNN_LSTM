@@ -2,5 +2,11 @@
 /log
 /dataset
 /new_log
+/log_for_100+lstm
+/log_for_100lstm
+/tmp_log
+/NLI/tmp_log
+/NLI/models
+/NLI/log
 *.pyc
 id*
