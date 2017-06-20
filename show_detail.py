@@ -569,7 +569,7 @@ def basic_attention(nb_words=10000, EMBEDDING_DIM=300, \
 
 if __name__ == '__main__':
     # model = cnn_rnn()
-    model = cnn_rnn_tmp()
+    model = cnn_rnn_add()
     # model = basic_attention()
     # model = basic_baseline()
     # model = basic_cnn()

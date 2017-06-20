@@ -43,7 +43,7 @@ def cnn_rnn(nb_words, EMBEDDING_DIM, \
                                 trainable=False)
 
     rnn_layer = Bidirectional(GRU(num_rnn, dropout=rate_drop_rnn, recurrent_dropout=rate_drop_rnn))
-    cnn_layer = Conv1D(activation="relu", padding="valid", strides=1, filters=128, kernel_size=3)
+    cnn_layer = Conv1D(activation="relu", padding="valid", strides=1, filters=128, kernel_size=2)
     # cnn_layer1 = Conv1D(activation="relu", padding="valid", strides=1, filters=64, kernel_size=4)
     pooling_layer = GlobalMaxPooling1D()
     cnn_dense = Dense(300)
@@ -140,7 +140,7 @@ def cnn_rnn(nb_words, EMBEDDING_DIM, \
     return model
 
 ########################################
-## CNN based RNN
+## CNN based RNN add
 ########################################
 def cnn_rnn_add(nb_words, EMBEDDING_DIM, \
                 embedding_matrix, MAX_SEQUENCE_LENGTH, \
@@ -349,8 +349,10 @@ def cnn_rnn_tmp(nb_words, EMBEDDING_DIM, \
     glob6b = Dropout(0.5)(glob6b)
     glob6b = BatchNormalization()(glob6b)
 
-    cnn_1 = concatenate([glob1a, glob2a, glob3a, glob4a, glob5a, glob6a])
-    cnn_2 = concatenate([glob1b, glob2b, glob3b, glob4b, glob5b, glob6b])
+    cnn_1 = concatenate([glob2a, glob3a, glob4a])
+    cnn_2 = concatenate([glob2b, glob3b, glob4b])
+    # cnn_1 = concatenate([glob1a, glob2a, glob3a, glob4a, glob5a, glob6a])
+    # cnn_2 = concatenate([glob1b, glob2b, glob3b, glob4b, glob5b, glob6b])
 
     cnn_1_t = cnn_dense1(cnn_1)
     cnn_2_t = cnn_dense1(cnn_2)

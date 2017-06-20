@@ -223,8 +223,8 @@ if __name__ == '__main__':
     else:
         print("what the fuck!")
     
-    # early_stopping =EarlyStopping(monitor='val_acc', patience=3)
-    early_stopping =EarlyStopping(monitor='val_loss', patience=3)
+    early_stopping =EarlyStopping(monitor='val_acc', patience=3)
+    # early_stopping =EarlyStopping(monitor='val_loss', patience=3)
     now_time = '_'.join(time.asctime(time.localtime(time.time())).split(' '))
     bst_model_path = './models/' + model_name + STAMP + '_' + now_time + '.h5'
     print('bst_model_path:', bst_model_path)
@@ -243,7 +243,7 @@ if __name__ == '__main__':
 
     hist = model.fit([data_1_train, data_2_train], labels_train, 
                      validation_data=([data_1_dev, data_2_dev], labels_dev, weight_val), 
-                     epochs=200, batch_size=512, shuffle=True, 
+                     epochs=200, batch_size=128, shuffle=True, 
                      class_weight=class_weight, callbacks=[early_stopping, model_checkpoint])
                      # class_weight=class_weight, callbacks=[model_checkpoint])
     
